@@ -9,6 +9,7 @@ import {
   Clock,
   Copy,
   FileUp,
+  Highlighter,
   Italic,
   Keyboard,
   List,
@@ -38,7 +39,15 @@ import {
 } from 'lucide-react';
 import { SpeechLanguage } from '../data/languages';
 import { FocusTimerController } from '../hooks/useFocusTimer';
+import {
+  applySegmentHighlightToDom,
+  clearSegmentHighlightFromDom,
+  computeActiveLineRects,
+  LineGlowRect,
+  SpeechSegment,
+} from '../utils/activeFocus';
 import { autoCorrectText } from '../utils/autoCorrect';
+import { EditorFontFamily, FONT_FAMILY_OPTIONS } from '../utils/fontFamily';
 import { shareDraftContent } from '../utils/shareDraft';
 import { TypographySize } from '../utils/storage';
 import {
@@ -66,6 +75,7 @@ interface StudioViewProps {
   focusMode: boolean;
   readabilityMode: boolean;
   typography: TypographySize;
+  fontFamily: EditorFontFamily;
   focusTimer: FocusTimerController;
   isListening: boolean;
   isSpeechSupported: boolean;
@@ -78,6 +88,9 @@ interface StudioViewProps {
   isSpeaking: boolean;
   isTtsSupported: boolean;
   ttsRate: number;
+  activeFocusEnabled: boolean;
+  activeSpeechSegment: SpeechSegment | null;
+  totalSpeechSegments: number;
   theme: 'light' | 'dark';
   saveStatus: 'saving' | 'saved';
   lastSyncedAt: number | null;
@@ -89,11 +102,14 @@ interface StudioViewProps {
   onToggleAutoCorrect: () => void;
   onToggleFocusMode: () => void;
   onToggleReadabilityMode: () => void;
+  onToggleActiveFocus: () => void;
   onChangeTypography: (size: TypographySize) => void;
+  onChangeFontFamily: (family: EditorFontFamily) => void;
   onToggleListening: () => void;
   onDismissError: () => void;
   onRunSampleDictation: () => void;
   onToggleTts: () => void;
+  onStopTts: () => void;
   onCycleTtsRate: () => void;
   onClearNote: () => void;
   onSaveNote: () => void;
@@ -126,6 +142,7 @@ export function StudioView({
   focusMode,
   readabilityMode,
   typography,
+  fontFamily,
   focusTimer,
   isListening,
   isSpeechSupported,
@@ -138,6 +155,9 @@ export function StudioView({
   isSpeaking,
   isTtsSupported,
   ttsRate,
+  activeFocusEnabled,
+  activeSpeechSegment,
+  totalSpeechSegments,
   theme,
   saveStatus,
   lastSyncedAt,
@@ -149,22 +169,27 @@ export function StudioView({
   onToggleAutoCorrect,
   onToggleFocusMode,
   onToggleReadabilityMode,
+  onToggleActiveFocus,
   onChangeTypography,
+  onChangeFontFamily,
   onToggleListening,
   onDismissError,
   onRunSampleDictation,
   onToggleTts,
+  onStopTts,
   onCycleTtsRate,
   onClearNote,
   onSaveNote,
   onToggleTheme,
 }: StudioViewProps) {
+  const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typographyMenuRef = useRef<HTMLDivElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const findInputRef = useRef<HTMLInputElement>(null);
   const noticeTimerRef = useRef<number | null>(null);
+  const activeHighlightRef = useRef<boolean>(false);
 
   const lastSyncedRef = useRef<{ noteId: string; html: string }>({
     noteId: '',
@@ -183,6 +208,7 @@ export function StudioView({
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [toolNotice, setToolNotice] = useState<string | null>(null);
   const [speakerTurn, setSpeakerTurn] = useState<1 | 2>(1);
+  const [activeLineRects, setActiveLineRects] = useState<LineGlowRect[]>([]);
 
   const metrics = useMemo(() => computeTextMetrics(content), [content]);
   const liveText = interimText ? `${content} ${interimText}` : content;
@@ -219,8 +245,64 @@ export function StudioView({
     if (lastSyncedRef.current.noteId !== noteId || lastSyncedRef.current.html !== htmlContent) {
       el.innerHTML = htmlContent;
       lastSyncedRef.current = { noteId, html: htmlContent };
+      activeHighlightRef.current = false;
     }
   }, [noteId, htmlContent]);
+
+  // Apply non-destructive Active Focus segment highlight and pulsing line glow during playback
+  useEffect(() => {
+    const el = editorRef.current;
+    const containerEl = editorContainerRef.current;
+    if (!el || !containerEl) return;
+
+    if (!activeFocusEnabled || !isSpeaking || !activeSpeechSegment || !content.trim()) {
+      if (activeHighlightRef.current) {
+        clearSegmentHighlightFromDom(el);
+        activeHighlightRef.current = false;
+      }
+      setActiveLineRects([]);
+      return;
+    }
+
+    const cleanHtml = htmlContent || plainTextToHtml(content);
+    el.innerHTML = cleanHtml;
+    const marks = applySegmentHighlightToDom(el, content, activeSpeechSegment);
+    activeHighlightRef.current = marks.length > 0;
+
+    if (marks.length === 0) {
+      setActiveLineRects([]);
+      return;
+    }
+
+    const updateRects = () => {
+      if (!editorContainerRef.current) return;
+      setActiveLineRects(computeActiveLineRects(marks, editorContainerRef.current));
+    };
+
+    updateRects();
+    if (typeof marks[0].scrollIntoView === 'function') {
+      marks[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateRects) : null;
+    ro?.observe(containerEl);
+    window.addEventListener('resize', updateRects);
+
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', updateRects);
+    };
+  }, [
+    activeFocusEnabled,
+    isSpeaking,
+    activeSpeechSegment,
+    content,
+    htmlContent,
+    noteId,
+    typography,
+    readabilityMode,
+    focusMode,
+  ]);
 
   // Close menus on outside click or Escape
   useEffect(() => {
@@ -278,6 +360,13 @@ export function StudioView({
   const handleEditorInput = () => {
     const el = editorRef.current;
     if (!el) return;
+    if (clearSegmentHighlightFromDom(el)) {
+      activeHighlightRef.current = false;
+      setActiveLineRects([]);
+      if (isSpeaking) {
+        onStopTts();
+      }
+    }
     const rawPlain = el.innerText.replace(/\u00a0/g, ' ');
     if (rawPlain.trim() === '' && !el.querySelector('li')) {
       el.innerHTML = '';
@@ -293,6 +382,13 @@ export function StudioView({
   const applyFormat = (command: string) => {
     const el = editorRef.current;
     if (!el) return;
+    if (clearSegmentHighlightFromDom(el)) {
+      activeHighlightRef.current = false;
+      setActiveLineRects([]);
+      if (isSpeaking) {
+        onStopTts();
+      }
+    }
     el.focus();
     document.execCommand(command, false);
     handleEditorInput();
@@ -419,8 +515,51 @@ export function StudioView({
 
       {/* Minimal Exit Focus Mode bar when active */}
       {focusMode && (
-        <div data-print-hide="true" className="flex items-center justify-end gap-2 mb-4">
+        <div data-print-hide="true" className="flex flex-wrap items-center justify-end gap-2 mb-4">
           <FocusTimerMenu timer={focusTimer} compact />
+
+          {isTtsSupported && (
+            <>
+              <button
+                type="button"
+                onClick={onToggleTts}
+                disabled={!hasContent && !isSpeaking}
+                aria-label={isSpeaking ? 'Stop reading aloud' : 'Listen to note'}
+                className={`inline-flex items-center gap-1.5 min-h-[38px] px-3 py-1.5 text-xs font-medium border rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  isSpeaking
+                    ? 'bg-accent-soft border-primary/30 text-primary'
+                    : 'text-muted bg-surface/90 border-border hover:text-foreground disabled:opacity-40 disabled:pointer-events-none'
+                }`}
+              >
+                {isSpeaking ? (
+                  <>
+                    <Square className="w-3.5 h-3.5 fill-current shrink-0" aria-hidden="true" />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                    <span>Listen</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={onToggleActiveFocus}
+                aria-pressed={activeFocusEnabled}
+                data-testid="focus-bar-active-focus-toggle"
+                className={`inline-flex items-center gap-1.5 min-h-[38px] px-3 py-1.5 text-xs font-medium border rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  activeFocusEnabled
+                    ? 'bg-accent-soft border-primary/30 text-primary'
+                    : 'text-muted bg-surface/90 border-border hover:text-foreground'
+                }`}
+              >
+                <Highlighter className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                <span>Active Focus</span>
+              </button>
+            </>
+          )}
 
           <button
             type="button"
@@ -453,7 +592,7 @@ export function StudioView({
       {!focusMode && (
         <div
           data-print-hide="true"
-          className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 mb-4"
+          className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4"
         >
           <div className="flex flex-wrap items-center gap-1.5 shrink-0">
             <LanguageSelector selectedLanguage={selectedLanguage} onSelect={onSelectLanguage} />
@@ -462,7 +601,7 @@ export function StudioView({
               type="button"
               onClick={onToggleVoiceCommands}
               aria-pressed={voiceCommandsEnabled}
-              className={`inline-flex items-center gap-1.5 min-h-[38px] px-2.5 py-1.5 text-xs sm:text-[13px] font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              className={`inline-flex items-center gap-1.5 min-h-[38px] px-2 py-1.5 text-xs sm:text-[13px] font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 voiceCommandsEnabled
                   ? 'bg-accent-soft border-primary/30 text-primary'
                   : 'bg-surface border-border text-muted hover:text-foreground'
@@ -478,7 +617,7 @@ export function StudioView({
               aria-pressed={autoCorrectEnabled}
               data-testid="autocorrect-toggle"
               title="Automatically fix common phonetic typos and casing errors while dictating"
-              className={`inline-flex items-center gap-1.5 min-h-[38px] px-2.5 py-1.5 text-xs sm:text-[13px] font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              className={`inline-flex items-center gap-1.5 min-h-[38px] px-2 py-1.5 text-xs sm:text-[13px] font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 autoCorrectEnabled
                   ? 'bg-accent-soft border-primary/30 text-primary'
                   : 'bg-surface border-border text-muted hover:text-foreground'
@@ -500,10 +639,10 @@ export function StudioView({
                   disabled={!hasContent && !isSpeaking}
                   aria-label={isSpeaking ? 'Stop reading aloud' : 'Listen to note'}
                   title={isSpeaking ? 'Stop reading aloud' : 'Listen to note'}
-                  className={`inline-flex items-center justify-center gap-1.5 h-9 rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+                  className={`inline-flex items-center justify-center gap-1 h-9 rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                     isSpeaking
-                      ? 'px-2 text-xs font-medium bg-accent-soft text-primary'
-                      : 'w-[30px] sm:w-8 text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none'
+                      ? 'px-1.5 text-xs font-medium bg-accent-soft text-primary'
+                      : 'w-[29px] text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none'
                   }`}
                 >
                   {isSpeaking ? (
@@ -520,7 +659,7 @@ export function StudioView({
                     type="button"
                     onClick={onCycleTtsRate}
                     aria-label={`Playback speed ${ttsRate}x`}
-                    className="h-9 px-1.5 text-xs font-mono tabular-nums text-muted hover:text-foreground hover:bg-well rounded-control"
+                    className="h-9 px-1 text-xs font-mono tabular-nums text-muted hover:text-foreground hover:bg-well rounded-control"
                   >
                     {ttsRate}x
                   </button>
@@ -534,7 +673,7 @@ export function StudioView({
               disabled={!hasContent}
               aria-label={copied ? 'Copied transcript' : 'Copy transcript'}
               title={copied ? 'Copied' : 'Copy transcript'}
-              className={`inline-flex items-center justify-center w-[30px] sm:w-8 h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+              className={`inline-flex items-center justify-center w-[29px] h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                 copied
                   ? 'text-primary bg-accent-soft'
                   : 'text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none'
@@ -553,7 +692,7 @@ export function StudioView({
               disabled={!hasContent && !title.trim()}
               aria-label={sharedFeedback ? 'Draft shared' : 'Share draft'}
               title={sharedFeedback ? 'Shared' : 'Share draft'}
-              className={`inline-flex items-center justify-center w-[30px] sm:w-8 h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+              className={`inline-flex items-center justify-center w-[29px] h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                 sharedFeedback
                   ? 'text-primary bg-accent-soft'
                   : 'text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none'
@@ -572,7 +711,7 @@ export function StudioView({
               disabled={!hasContent && !title.trim()}
               aria-label="Save note"
               title="Save note (Ctrl+S)"
-              className="inline-flex items-center justify-center w-[30px] sm:w-8 h-9 text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center justify-center w-[29px] h-9 text-muted hover:text-foreground hover:bg-well disabled:opacity-40 disabled:pointer-events-none rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <Save className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             </button>
@@ -589,7 +728,7 @@ export function StudioView({
                 aria-expanded={typographyOpen}
                 aria-label="Typography"
                 title={`Typography (${selectedTypoOption.label})`}
-                className={`inline-flex items-center gap-1 h-9 px-1.5 sm:px-2 text-xs font-medium rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+                className={`inline-flex items-center gap-1 h-9 px-1.5 text-xs font-medium rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                   typographyOpen
                     ? 'bg-accent-soft text-primary'
                     : 'text-muted hover:text-foreground hover:bg-well'
@@ -608,9 +747,12 @@ export function StudioView({
               {typographyOpen && (
                 <div
                   role="menu"
-                  aria-label="Editor text size"
-                  className="absolute right-0 mt-2 w-44 z-40 bg-surface border border-border rounded-card shadow-surface py-1.5"
+                  aria-label="Editor text size and font family"
+                  className="absolute right-0 mt-2 w-48 z-40 bg-surface border border-border rounded-card shadow-surface py-1.5"
                 >
+                  <div className="px-3.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted">
+                    Text Size
+                  </div>
                   {TYPOGRAPHY_OPTIONS.map((opt) => {
                     const isActive = typography === opt.id;
                     return (
@@ -637,6 +779,34 @@ export function StudioView({
                       </button>
                     );
                   })}
+
+                  <div className="my-1 border-t border-border/60" role="separator" />
+                  <div className="px-3.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted">
+                    Font Family
+                  </div>
+                  {FONT_FAMILY_OPTIONS.map((opt) => {
+                    const isActive = fontFamily === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={isActive}
+                        onClick={() => {
+                          onChangeFontFamily(opt.id);
+                          setTypographyOpen(false);
+                        }}
+                        className={`w-full px-3.5 py-2 flex items-center justify-between gap-2 text-left text-sm transition-colors ${
+                          isActive
+                            ? 'bg-accent-soft text-primary font-medium'
+                            : 'text-foreground hover:bg-well'
+                        }`}
+                      >
+                        <span style={{ fontFamily: opt.cssValue }}>{opt.label}</span>
+                        {isActive && <Check className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -653,7 +823,7 @@ export function StudioView({
                 aria-expanded={toolsOpen}
                 aria-label="Writing tools"
                 title="Writing tools"
-                className={`inline-flex items-center justify-center w-[30px] sm:w-8 h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+                className={`inline-flex items-center justify-center w-[29px] h-9 rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                   toolsOpen
                     ? 'bg-accent-soft text-primary'
                     : 'text-muted hover:text-foreground hover:bg-well'
@@ -769,7 +939,7 @@ export function StudioView({
               onClick={() => setAnalyticsOpen(true)}
               aria-label="Analytics"
               title="Draft Analytics"
-              className="inline-flex items-center gap-1.5 h-9 px-1.5 sm:px-2 text-xs font-medium text-muted hover:text-foreground hover:bg-well rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center gap-1.5 h-9 px-1.5 text-xs font-medium text-muted hover:text-foreground hover:bg-well rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <BarChart2 className="w-4 h-4 shrink-0" aria-hidden="true" />
               <span className="hidden xl:inline">Analytics</span>
@@ -781,7 +951,7 @@ export function StudioView({
               aria-pressed={readabilityMode}
               aria-label="Readability"
               title="Toggle Readability mode (focused line width & line height)"
-              className={`inline-flex items-center gap-1.5 h-9 px-1.5 sm:px-2 text-xs font-medium rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+              className={`inline-flex items-center gap-1.5 h-9 px-1.5 text-xs font-medium rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
                 readabilityMode
                   ? 'bg-accent-soft text-primary'
                   : 'text-muted hover:text-foreground hover:bg-well'
@@ -797,7 +967,7 @@ export function StudioView({
               aria-pressed={focusMode}
               aria-label="Focus Mode"
               title="Focus Mode"
-              className="inline-flex items-center gap-1.5 h-9 px-1.5 sm:px-2 text-xs font-medium text-muted hover:text-foreground hover:bg-well rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center gap-1.5 h-9 px-1.5 text-xs font-medium text-muted hover:text-foreground hover:bg-well rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <Maximize2 className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               <span className="hidden xl:inline">Focus</span>
@@ -809,7 +979,7 @@ export function StudioView({
               disabled={!hasContent && !title.trim()}
               aria-label="Clear note"
               title="Clear note"
-              className="inline-flex items-center justify-center w-[30px] sm:w-8 h-9 text-muted hover:text-danger hover:bg-danger-soft disabled:opacity-35 disabled:pointer-events-none rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center justify-center w-[29px] h-9 text-muted hover:text-danger hover:bg-danger-soft disabled:opacity-35 disabled:pointer-events-none rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <Trash2 className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -819,7 +989,7 @@ export function StudioView({
               onClick={onToggleTheme}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-              className="inline-flex items-center justify-center w-[30px] sm:w-8 h-9 text-muted hover:text-foreground hover:bg-well rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center justify-center w-[29px] h-9 text-muted hover:text-foreground hover:bg-well rounded-control transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4" aria-hidden="true" />
@@ -898,6 +1068,14 @@ export function StudioView({
                     <span className="text-primary font-medium">Readability</span>
                   </>
                 )}
+                {activeFocusEnabled && isSpeaking && activeSpeechSegment && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span data-testid="active-focus-playback-status" className="text-primary font-medium">
+                      Active Focus {totalSpeechSegments > 1 ? `(${activeSpeechSegment.index + 1}/${totalSpeechSegments})` : 'on'}
+                    </span>
+                  </>
+                )}
                 {(toolNotice || lastCommandLabel || lastAutoCorrection) && (
                   <>
                     <span aria-hidden="true">·</span>
@@ -909,61 +1087,109 @@ export function StudioView({
                 )}
               </div>
 
-              <div
-                role="group"
-                aria-label="Text formatting"
-                className="hidden sm:flex items-center gap-0.5 shrink-0"
-              >
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => applyFormat('bold')}
-                  aria-label="Bold"
-                  title="Bold"
-                  className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <div
+                  role="group"
+                  aria-label="Font Family"
+                  data-testid="font-family-selector"
+                  className="inline-flex items-center bg-well/70 border border-border rounded-control p-0.5 shrink-0"
                 >
-                  <Bold className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => applyFormat('italic')}
-                  aria-label="Italic"
-                  title="Italic"
-                  className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  {FONT_FAMILY_OPTIONS.map((opt) => {
+                    const isSelected = fontFamily === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => onChangeFontFamily(opt.id)}
+                        aria-pressed={isSelected}
+                        title={`${opt.label} (${opt.description})`}
+                        style={{ fontFamily: opt.cssValue }}
+                        className={`px-2 py-0.5 min-h-[24px] text-xs rounded-[5px] transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-primary ${
+                          isSelected
+                            ? 'bg-surface text-primary font-medium shadow-xs'
+                            : 'text-muted hover:text-foreground'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {isTtsSupported && (
+                  <button
+                    type="button"
+                    onClick={onToggleActiveFocus}
+                    aria-pressed={activeFocusEnabled}
+                    data-testid="active-focus-toggle"
+                    title="Highlight active spoken segment with a pulsing line glow during playback"
+                    className={`inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary ${
+                      activeFocusEnabled
+                        ? 'bg-accent-soft border-primary/35 text-primary'
+                        : 'bg-surface border-border text-muted hover:text-foreground hover:bg-well'
+                    }`}
+                  >
+                    <Highlighter className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                    <span>Active Focus</span>
+                  </button>
+                )}
+
+                <div
+                  role="group"
+                  aria-label="Text formatting"
+                  className="hidden sm:flex items-center gap-0.5 shrink-0"
                 >
-                  <Italic className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => applyFormat('underline')}
-                  aria-label="Underline"
-                  title="Underline"
-                  className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  <Underline className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => applyFormat('insertUnorderedList')}
-                  aria-label="Bulleted list"
-                  title="Bulleted list"
-                  className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  <List className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => applyFormat('insertOrderedList')}
-                  aria-label="Numbered list"
-                  title="Numbered list"
-                  className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  <ListOrdered className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyFormat('bold')}
+                    aria-label="Bold"
+                    title="Bold"
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    <Bold className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyFormat('italic')}
+                    aria-label="Italic"
+                    title="Italic"
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    <Italic className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyFormat('underline')}
+                    aria-label="Underline"
+                    title="Underline"
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    <Underline className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyFormat('insertUnorderedList')}
+                    aria-label="Bulleted list"
+                    title="Bulleted list"
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    <List className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyFormat('insertOrderedList')}
+                    aria-label="Numbered list"
+                    title="Numbered list"
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-control text-muted hover:text-foreground hover:bg-well transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    <ListOrdered className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1076,27 +1302,54 @@ export function StudioView({
           className={`${focusMode ? 'min-h-[60vh]' : 'mt-5 min-h-[300px] sm:min-h-[370px]'} flex flex-col justify-between`}
         >
           <div className={readabilityMode ? 'w-full' : undefined}>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              role="textbox"
-              aria-multiline="true"
-              aria-label="Dictation transcript"
-              dir={selectedLanguage.rtl ? 'rtl' : 'ltr'}
-              data-readability={readabilityMode ? 'true' : 'false'}
-              data-typography={typography}
-              data-placeholder="Start speaking or type directly here..."
-              onInput={handleEditorInput}
-              className={`dictation-editor ${
-                focusMode ? 'min-h-[55vh]' : 'min-h-[220px]'
-              } ${editorLayoutClass} text-foreground focus:outline-none whitespace-pre-wrap break-words transition-[max-width,line-height,font-size] duration-150`}
-            />
+            <div ref={editorContainerRef} className="relative">
+              {activeFocusEnabled && isSpeaking && activeLineRects.length > 0 && (
+                <div
+                  aria-hidden="true"
+                  data-testid="active-focus-glow-layer"
+                  className={`pointer-events-none absolute inset-0 overflow-hidden z-0 ${
+                    readabilityMode
+                      ? 'max-w-[58ch] mx-auto'
+                      : focusMode
+                        ? 'max-w-[68ch] mx-auto'
+                        : 'max-w-[70ch]'
+                  }`}
+                >
+                  {activeLineRects.map((rect, idx) => (
+                    <div
+                      key={idx}
+                      data-testid="active-focus-line-glow"
+                      className="active-focus-line-glow absolute left-0 right-0 rounded-md"
+                      style={{ top: `${rect.top}px`, height: `${rect.height}px` }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                role="textbox"
+                aria-multiline="true"
+                aria-label="Dictation transcript"
+                dir={selectedLanguage.rtl ? 'rtl' : 'ltr'}
+                data-readability={readabilityMode ? 'true' : 'false'}
+                data-typography={typography}
+                data-active-focus={activeFocusEnabled && isSpeaking ? 'true' : 'false'}
+                data-placeholder="Start speaking or type directly here..."
+                onInput={handleEditorInput}
+                className={`dictation-editor relative z-[1] ${
+                  focusMode ? 'min-h-[55vh]' : 'min-h-[220px]'
+                } ${editorLayoutClass} text-foreground focus:outline-none whitespace-pre-wrap break-words transition-[max-width,line-height,font-size] duration-150`}
+              />
+            </div>
 
             {interimText && (
               <p
                 aria-live="polite"
                 data-testid="interim-transcript-preview"
+                style={{ fontFamily: 'var(--font-sans)' }}
                 className={`mt-3 text-[15px] leading-relaxed text-muted italic ${
                   readabilityMode ? 'max-w-[58ch] mx-auto' : ''
                 }`}

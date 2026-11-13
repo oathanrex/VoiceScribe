@@ -6,6 +6,7 @@ import {
   getLocalDateKey,
 } from './dailyGoal';
 import { DraftVersionSnapshot, MAX_DRAFT_VERSIONS } from './versionHistory';
+import { EditorFontFamily, parseStoredFontFamily } from './fontFamily';
 
 export type TypographySize = 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -31,6 +32,8 @@ const KEYS = {
   VERSION_HISTORY: 'voicescribe_version_history_v1',
   LAST_SYNCED: 'voicescribe_last_synced_v1',
   AUTO_CORRECT: 'voicescribe_autocorrect_v1',
+  ACTIVE_FOCUS: 'voicescribe_active_focus_v1',
+  FONT_FAMILY: 'voicescribe_font_family_v1',
 };
 
 const SEED_NOTES: SavedNote[] = [
@@ -285,6 +288,39 @@ export function loadAutoCorrectEnabled(): boolean {
 export function persistAutoCorrectEnabled(enabled: boolean): void {
   try {
     localStorage.setItem(KEYS.AUTO_CORRECT, String(enabled));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+export function loadActiveFocusEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(KEYS.ACTIVE_FOCUS);
+    return raw === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function persistActiveFocusEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(KEYS.ACTIVE_FOCUS, String(enabled));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+export function loadFontFamilyPreference(): EditorFontFamily {
+  try {
+    return parseStoredFontFamily(localStorage.getItem(KEYS.FONT_FAMILY));
+  } catch {
+    return 'sans';
+  }
+}
+
+export function persistFontFamilyPreference(fontFamily: EditorFontFamily): void {
+  try {
+    localStorage.setItem(KEYS.FONT_FAMILY, fontFamily);
   } catch {
     // Ignore storage quota errors
   }

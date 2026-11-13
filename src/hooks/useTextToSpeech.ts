@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { splitSpeechChunks } from '../utils/audioExport';
+import { SpeechSegment, splitTextIntoSpeechSegments } from '../utils/activeFocus';
 
 export interface UseTextToSpeechReturn {
   isSupported: boolean;
   isSpeaking: boolean;
   rate: number;
+  activeSegment: SpeechSegment | null;
+  totalSegments: number;
   setRate: (rate: number) => void;
   speak: (text: string, langCode: string) => void;
   stop: () => void;
@@ -13,6 +15,8 @@ export interface UseTextToSpeechReturn {
 export function useTextToSpeech(): UseTextToSpeechReturn {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [rate, setRate] = useState(1);
+  const [activeSegment, setActiveSegment] = useState<SpeechSegment | null>(null);
+  const [totalSegments, setTotalSegments] = useState(0);
   const sessionRef = useRef(0);
 
   const isSupported =
@@ -22,13 +26,16 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
 
   const stop = useCallback(() => {
     sessionRef.current += 1;
-    if (!isSupported) return;
-    try {
-      window.speechSynthesis.cancel();
-    } catch {
-      // Ignore synthesis cancel errors
+    if (isSupported) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // Ignore synthesis cancel errors
+      }
     }
     setIsSpeaking(false);
+    setActiveSegment(null);
+    setTotalSegments(0);
   }, [isSupported]);
 
   const speak = useCallback(
@@ -41,26 +48,39 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
         // Ignore synthesis cancel errors
       }
 
-      const chunks = splitSpeechChunks(text, 200);
-      if (chunks.length === 0) return;
+      const segments = splitTextIntoSpeechSegments(text, 200);
+      if (segments.length === 0) return;
 
       setIsSpeaking(true);
+      setTotalSegments(segments.length);
 
       const speakNext = (index: number) => {
-        if (sessionRef.current !== sessionId || index >= chunks.length) {
+        if (sessionRef.current !== sessionId || index >= segments.length) {
           if (sessionRef.current === sessionId) {
             setIsSpeaking(false);
+            setActiveSegment(null);
+            setTotalSegments(0);
           }
           return;
         }
 
-        const utterance = new SpeechSynthesisUtterance(chunks[index]);
+        const segment = segments[index];
+        setActiveSegment(segment);
+
+        const utterance = new SpeechSynthesisUtterance(segment.text);
         utterance.lang = langCode;
         utterance.rate = rate;
+        utterance.onstart = () => {
+          if (sessionRef.current === sessionId) {
+            setActiveSegment(segment);
+          }
+        };
         utterance.onend = () => {
           if (sessionRef.current !== sessionId) return;
-          if (index + 1 >= chunks.length) {
+          if (index + 1 >= segments.length) {
             setIsSpeaking(false);
+            setActiveSegment(null);
+            setTotalSegments(0);
           } else {
             speakNext(index + 1);
           }
@@ -68,9 +88,20 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
         utterance.onerror = () => {
           if (sessionRef.current === sessionId) {
             setIsSpeaking(false);
+            setActiveSegment(null);
+            setTotalSegments(0);
           }
         };
-        window.speechSynthesis.speak(utterance);
+
+        try {
+          window.speechSynthesis.speak(utterance);
+        } catch {
+          if (sessionRef.current === sessionId) {
+            setIsSpeaking(false);
+            setActiveSegment(null);
+            setTotalSegments(0);
+          }
+        }
       };
 
       speakNext(0);
@@ -95,6 +126,8 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
     isSupported,
     isSpeaking,
     rate,
+    activeSegment,
+    totalSegments,
     setRate,
     speak,
     stop,

@@ -5,6 +5,7 @@
   --font-sans: "Instrument Sans", system-ui, -apple-system, sans-serif;
   --font-display: "Instrument Sans", system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-ui: "Instrument Sans", system-ui, -apple-system, sans-serif;
 
   --color-background: var(--pfx-bg);
   --color-surface: var(--pfx-surface);
@@ -63,14 +64,14 @@
 
 @layer base {
   html {
-    font-family: var(--font-sans);
+    font-family: var(--font-ui);
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    font-family: var(--font-sans);
+    font-family: var(--font-ui);
     background-color: var(--color-background);
     color: var(--color-foreground);
     min-height: 100dvh;
@@ -82,6 +83,10 @@
 }
 
 /* Rich editor formatting hygiene */
+.dictation-editor {
+  font-family: var(--font-sans);
+}
+
 .dictation-editor:empty::before {
   content: attr(data-placeholder);
   color: var(--color-muted);
@@ -131,6 +136,46 @@
 
 .dictation-editor[data-readability="true"] {
   line-height: 1.95;
+}
+
+@keyframes active-focus-line-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--pfx-primary) 18%, transparent),
+      0 0 12px color-mix(in oklch, var(--pfx-primary) 12%, transparent);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--pfx-primary) 36%, transparent),
+      0 0 22px color-mix(in oklch, var(--pfx-primary) 24%, transparent);
+  }
+}
+
+.active-focus-line-glow {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--pfx-primary) 10%, transparent) 0%,
+    color-mix(in oklch, var(--pfx-primary) 14%, transparent) 55%,
+    color-mix(in oklch, var(--pfx-primary) 6%, transparent) 100%
+  );
+  border-left: 2.5px solid color-mix(in oklch, var(--pfx-primary) 68%, transparent);
+  animation: active-focus-line-pulse 2.2s ease-in-out infinite;
+  transition: top 180ms ease-out, height 180ms ease-out;
+}
+
+.dictation-editor mark.active-focus-segment {
+  background-color: color-mix(in oklch, var(--pfx-primary) 20%, transparent);
+  color: inherit;
+  border-radius: 0.25rem;
+  padding: 0.04em 0.16em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background-color 180ms ease;
+}
+
+.dark .dictation-editor mark.active-focus-segment,
+[data-theme="dark"] .dictation-editor mark.active-focus-segment {
+  background-color: color-mix(in oklch, var(--pfx-primary) 28%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

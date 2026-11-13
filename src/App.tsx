@@ -25,6 +25,7 @@ import {
   SpeechAudioExportHandle,
   startSpeechAudioExport,
 } from './utils/audioExport';
+import { EditorFontFamily, resolveFontFamilyCssVar } from './utils/fontFamily';
 import { exportDraftAs, ExportFormat } from './utils/exportDraft';
 import {
   appendDraftVersion,
@@ -40,8 +41,10 @@ import {
 import {
   ActiveDraft,
   loadActiveDraft,
+  loadActiveFocusEnabled,
   loadAutoCorrectEnabled,
   loadDailyGoalState,
+  loadFontFamilyPreference,
   loadLanguagePreference,
   loadLastSyncedAt,
   loadSavedNotes,
@@ -50,8 +53,10 @@ import {
   loadVersionHistory,
   loadVoiceCommandsEnabled,
   persistActiveDraft,
+  persistActiveFocusEnabled,
   persistAutoCorrectEnabled,
   persistDailyGoalState,
+  persistFontFamilyPreference,
   persistLanguagePreference,
   persistLastSyncedAt,
   persistSavedNotes,
@@ -93,6 +98,9 @@ export default function App() {
   const [autoCorrectEnabled, setAutoCorrectEnabled] = useState<boolean>(() =>
     loadAutoCorrectEnabled()
   );
+  const [activeFocusEnabled, setActiveFocusEnabled] = useState<boolean>(() =>
+    loadActiveFocusEnabled()
+  );
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>(() => loadSavedNotes());
   const [draft, setDraft] = useState<ActiveDraft>(() => loadActiveDraft());
   const [versionHistory, setVersionHistory] = useState<DraftVersionSnapshot[]>(() =>
@@ -114,6 +122,9 @@ export default function App() {
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [readabilityMode, setReadabilityMode] = useState<boolean>(false);
   const [typography, setTypography] = useState<TypographySize>(() => loadTypographyPreference());
+  const [fontFamily, setFontFamily] = useState<EditorFontFamily>(() =>
+    loadFontFamilyPreference()
+  );
   const [guideSection, setGuideSection] = useState<LegalSection>('article');
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved'>('saved');
   const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(() => loadLastSyncedAt());
@@ -195,6 +206,15 @@ export default function App() {
     }
     persistThemePreference(theme);
   }, [theme]);
+
+  // Update --font-sans CSS variable cleanly for the editor and persist selection
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--font-sans',
+      resolveFontFamilyCssVar(fontFamily)
+    );
+    persistFontFamilyPreference(fontFamily);
+  }, [fontFamily]);
 
   // Persist active draft with explicit Saving... -> Saved feedback and record throttled version snapshot
   useEffect(() => {
@@ -614,6 +634,10 @@ export default function App() {
     persistTypographyPreference(size);
   }, []);
 
+  const handleChangeFontFamily = useCallback((family: EditorFontFamily) => {
+    setFontFamily(family);
+  }, []);
+
   const handleSelectLanguage = useCallback((lang: SpeechLanguage) => {
     setLanguageId(lang.id);
     persistLanguagePreference(lang.id);
@@ -631,6 +655,14 @@ export default function App() {
     setAutoCorrectEnabled((prev) => {
       const next = !prev;
       persistAutoCorrectEnabled(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleActiveFocus = useCallback(() => {
+    setActiveFocusEnabled((prev) => {
+      const next = !prev;
+      persistActiveFocusEnabled(next);
       return next;
     });
   }, []);
@@ -881,6 +913,7 @@ export default function App() {
             focusMode={focusMode}
             readabilityMode={readabilityMode}
             typography={typography}
+            fontFamily={fontFamily}
             focusTimer={focusTimer}
             isListening={recognition.isListening}
             isSpeechSupported={recognition.isSupported}
@@ -893,6 +926,9 @@ export default function App() {
             isSpeaking={tts.isSpeaking}
             isTtsSupported={tts.isSupported}
             ttsRate={tts.rate}
+            activeFocusEnabled={activeFocusEnabled}
+            activeSpeechSegment={tts.activeSegment}
+            totalSpeechSegments={tts.totalSegments}
             theme={theme}
             saveStatus={saveStatus}
             lastSyncedAt={lastSyncedAt}
@@ -906,7 +942,9 @@ export default function App() {
             onToggleAutoCorrect={handleToggleAutoCorrect}
             onToggleFocusMode={() => setFocusMode((prev) => !prev)}
             onToggleReadabilityMode={() => setReadabilityMode((prev) => !prev)}
+            onToggleActiveFocus={handleToggleActiveFocus}
             onChangeTypography={handleChangeTypography}
+            onChangeFontFamily={handleChangeFontFamily}
             onToggleListening={toggleListening}
             onDismissError={recognition.clearError}
             onRunSampleDictation={handleRunSampleDictation}
@@ -917,6 +955,7 @@ export default function App() {
                 tts.speak(draft.content, selectedLanguage.code);
               }
             }}
+            onStopTts={tts.stop}
             onCycleTtsRate={() => {
               const rates = [0.9, 1, 1.25, 1.5];
               const next = rates[(rates.indexOf(tts.rate) + 1) % rates.length];
