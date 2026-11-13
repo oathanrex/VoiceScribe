@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoiceScribe – Free Speech to Text & Voice Typing</title>
+    <meta
+      name="description"
+      content="Dictate notes, emails, and articles in 100+ languages with VoiceScribe. Free, private browser speech-to-text with voice punctuation and instant export."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VoiceScribe" />
+    <meta property="og:title" content="VoiceScribe – Free Speech to Text & Voice Typing" />
+    <meta
+      property="og:description"
+      content="Dictate notes, emails, and articles in 100+ languages with VoiceScribe. Free, private browser speech-to-text with voice punctuation and instant export."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VoiceScribe – Free Speech to Text & Voice Typing" />
+    <meta
+      name="twitter:description"
+      content="Dictate notes, emails, and articles in 100+ languages with VoiceScribe. Free, private browser speech-to-text with voice punctuation and instant export."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "VoiceScribe",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "All",
+        "description": "Free browser-based speech-to-text dictation workspace supporting 100+ languages, hands-free voice punctuation commands, readability mode, and Markdown, PDF, and Word export.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does VoiceScribe store my dictated notes on external servers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Your dictated notes and drafts are saved locally inside your browser storage. Nothing is uploaded to our servers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which browsers support live voice typing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Live speech recognition runs through the Web Speech API and works best in Google Chrome and Microsoft Edge on desktop and Android."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I add punctuation without touching the keyboard?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Keep Voice commands enabled and speak punctuation cues naturally, such as comma, full stop, question mark, new line, or new paragraph."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

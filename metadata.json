@@ -1,0 +1,6 @@
+{
+  "name": "VoiceScribe",
+  "description": "Clean, distraction-free voice dictation and speech-to-text workspace supporting 110+ languages and natural voice punctuation commands.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
