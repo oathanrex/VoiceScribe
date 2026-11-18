@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, Globe, Search, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Globe, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import {
   SUPPORTED_COMMAND_LANGUAGES,
   VOICE_COMMANDS,
@@ -71,7 +71,7 @@ export function CommandsView({ onInsertToken, activeLanguage }: CommandsViewProp
 
   const currentLangLabel = useMemo(() => {
     const found = SUPPORTED_COMMAND_LANGUAGES.find((l) => l.code === selectedLang);
-    return found ? `${found.flag} ${found.name}` : 'All Languages';
+    return found ? `${found.name} (${found.flag})` : 'All Languages';
   }, [selectedLang]);
 
   return (
@@ -123,7 +123,7 @@ export function CommandsView({ onInsertToken, activeLanguage }: CommandsViewProp
                     : 'bg-surface text-muted hover:text-foreground border-border hover:border-border/80'
                 }`}
               >
-                <span>{lang.flag}</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-well text-foreground/80">{lang.flag}</span>
                 <span>{lang.name}</span>
               </button>
             );
@@ -302,8 +302,9 @@ export function CommandsView({ onInsertToken, activeLanguage }: CommandsViewProp
       </div>
 
       {/* Quiet privacy note */}
-      <p className="mt-5 text-xs text-muted leading-relaxed">
-        🔒 100% Client-Side Privacy: Your voice audio is processed directly through the browser Web Speech API. Zero audio recordings or transcript data are ever stored on external servers.
+      <p className="mt-5 text-xs text-muted leading-relaxed flex items-center gap-1.5">
+        <ShieldCheck className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+        <span>100% Client-Side Privacy: Your voice audio is processed directly through the browser Web Speech API. Zero audio recordings or transcript data are ever stored on external servers.</span>
       </p>
     </div>
   );

@@ -1,6 +1,6 @@
 /**
  * VoiceScribe Real-Time Translator Utility
- * Inspired by DeepL Voice: Powers live bilingual subtitles, meeting interpretation,
+ * Powers live bilingual subtitles, meeting interpretation,
  * and dual-language dictation.
  */
 
@@ -12,20 +12,20 @@ export interface TranslationResult {
 }
 
 export const POPULAR_TARGET_LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'hi', name: 'Hindi (हिंदी)', flag: '🇮🇳' },
-  { code: 'es', name: 'Spanish (Español)', flag: '🇪🇸' },
-  { code: 'fr', name: 'French (Français)', flag: '🇫🇷' },
-  { code: 'de', name: 'German (Deutsch)', flag: '🇩🇪' },
-  { code: 'ja', name: 'Japanese (日本語)', flag: '🇯🇵' },
-  { code: 'zh', name: 'Chinese (中文)', flag: '🇨🇳' },
-  { code: 'ar', name: 'Arabic (العربية)', flag: '🇸🇦' },
-  { code: 'ru', name: 'Russian (Русский)', flag: '🇷🇺' },
-  { code: 'pt', name: 'Portuguese (Português)', flag: '🇵🇹' },
-  { code: 'it', name: 'Italian (Italiano)', flag: '🇮🇹' },
-  { code: 'bn', name: 'Bengali (বাংলা)', flag: '🇧🇩' },
-  { code: 'ur', name: 'Urdu (اردو)', flag: '🇵🇰' },
-  { code: 'ko', name: 'Korean (한국어)', flag: '🇰🇷' },
+  { code: 'en', name: 'English', flag: 'EN' },
+  { code: 'hi', name: 'Hindi (हिंदी)', flag: 'HI' },
+  { code: 'es', name: 'Spanish (Español)', flag: 'ES' },
+  { code: 'fr', name: 'French (Français)', flag: 'FR' },
+  { code: 'de', name: 'German (Deutsch)', flag: 'DE' },
+  { code: 'ja', name: 'Japanese (日本語)', flag: 'JA' },
+  { code: 'zh', name: 'Chinese (中文)', flag: 'ZH' },
+  { code: 'ar', name: 'Arabic (العربية)', flag: 'AR' },
+  { code: 'ru', name: 'Russian (Русский)', flag: 'RU' },
+  { code: 'pt', name: 'Portuguese (Português)', flag: 'PT' },
+  { code: 'it', name: 'Italian (Italiano)', flag: 'IT' },
+  { code: 'bn', name: 'Bengali (বাংলা)', flag: 'BN' },
+  { code: 'ur', name: 'Urdu (اردو)', flag: 'UR' },
+  { code: 'ko', name: 'Korean (한국어)', flag: 'KO' },
 ];
 
 /**

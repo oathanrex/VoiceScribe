@@ -72,7 +72,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
 
   const debounceTimerRef = useRef<number | null>(null);
 
-  // Live translation of interim speech (inspired by DeepL Voice live subtitles)
+  // Live translation of interim speech for live subtitles studio
   useEffect(() => {
     if (!interimText || !interimText.trim()) {
       setTranslatedInterim('');
@@ -154,7 +154,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
 
   const handleExportConversationToDraft = () => {
     const text =
-      '\n\n### 🎙️ Live Bilingal Conversation Transcript\n' +
+      '\n\n### Live Bilingual Conversation Transcript\n' +
       conversationHistory
         .map(
           (t) =>
@@ -172,7 +172,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="deepl-voice-title"
+      aria-labelledby="voice-studio-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/50 dark:bg-black/75 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
@@ -188,8 +188,8 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 id="deepl-voice-title" className="text-base font-semibold text-foreground">
-                  DeepL Voice Studio
+                <h2 id="voice-studio-title" className="text-base font-semibold text-foreground">
+                  Voice Studio: Live Subtitles
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold bg-primary/15 text-primary rounded-full uppercase tracking-wider">
                   Live Translation
@@ -261,7 +261,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
                   >
                     {POPULAR_TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.flag} {l.name}
+                        [{l.code.toUpperCase()}] {l.name}
                       </option>
                     ))}
                   </select>
@@ -415,7 +415,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
                   >
                     {POPULAR_TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.flag} {l.name}
+                        [{l.code.toUpperCase()}] {l.name}
                       </option>
                     ))}
                   </select>
@@ -435,7 +435,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
                   >
                     {POPULAR_TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.flag} {l.name}
+                        [{l.code.toUpperCase()}] {l.name}
                       </option>
                     ))}
                   </select>
@@ -566,7 +566,7 @@ export const LiveSubtitlesModal: React.FC<LiveSubtitlesModalProps> = ({
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-border bg-surface flex items-center justify-between text-xs text-muted">
-          <span>DeepL Voice-Grade Real-Time Multilingual Interpretation</span>
+          <span>Real-Time Multilingual Speech Subtitles &amp; Interpretation</span>
           <button
             type="button"
             onClick={onClose}

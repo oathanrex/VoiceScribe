@@ -63,7 +63,7 @@ export function GuideView({ section, onSectionChange, onBackToStudio }: GuideVie
               <p className="mt-3 text-sm sm:text-base text-muted leading-relaxed">
                 Most of us think faster than we type, yet everyday writing still gets bottlenecked by
                 keyboards, tiny mobile screens, and noisy note-taking apps. Here is how modern
-                browser speech recognition works—and how to build a reliable voice-first writing
+                browser speech recognition works, and how to build a reliable voice-first writing
                 habit.
               </p>
             </header>
@@ -75,8 +75,8 @@ export function GuideView({ section, onSectionChange, onBackToStudio }: GuideVie
               <p className="text-[15px] leading-[1.75] text-foreground/90">
                 An average keyboard typist writes around 40 to 55 words per minute, stopping often to
                 fix spelling slips or second-guess a phrase. Natural conversational speech flows at
-                120 to 150 words per minute. Separating drafting from editing—capturing your ideas
-                out loud first, then refining structure afterward—removes the blank-page friction
+                120 to 150 words per minute. Separating drafting from editing (capturing your ideas
+                out loud first, then refining structure afterward) removes the blank-page friction
                 that stalls emails, study notes, and long-form articles.
               </p>
               <p className="text-[15px] leading-[1.75] text-foreground/90">
@@ -101,7 +101,7 @@ export function GuideView({ section, onSectionChange, onBackToStudio }: GuideVie
               <p className="text-[15px] leading-[1.75] text-foreground/90">
                 Because VoiceScribe stores your drafts exclusively in your browser’s local storage,
                 your written notes never sit in an external database. You stay in control of every
-                word—and when a draft is ready, you can copy it, check word frequency in Draft
+                word, and when a draft is ready, you can copy it, check word frequency in Draft
                 Analytics, or export clean Markdown, Word, or PDF files.
               </p>
             </section>
@@ -189,8 +189,8 @@ export function GuideView({ section, onSectionChange, onBackToStudio }: GuideVie
             <h2 className="text-lg font-semibold pt-2">Our Design Philosophy</h2>
             <p className="text-[15px] leading-[1.75] text-foreground/90">
               We believe browser utilities should stay calm and respectful of your attention. Every
-              control in the Studio—from Readability Mode and Focus Mode to local draft persistence
-              and clean Markdown, PDF, and Word exports—is designed to keep you in flow.
+              control in the Studio (from Readability Mode and Focus Mode to local draft persistence
+              and clean Markdown, PDF, and Word exports) is designed to keep you in flow.
             </p>
             <h2 className="text-lg font-semibold pt-2">Contact & Support</h2>
             <p className="text-[15px] leading-[1.75] text-foreground/90">

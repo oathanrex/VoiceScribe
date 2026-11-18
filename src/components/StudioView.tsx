@@ -68,6 +68,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { TabAudioModal } from './TabAudioModal';
 import { LiveSubtitlesModal } from './LiveSubtitlesModal';
+import { WritingAssistantModal } from './WritingAssistantModal';
 import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
 interface StudioViewProps {
@@ -212,6 +213,7 @@ export function StudioView({
   const [typographyOpen, setTypographyOpen] = useState(false);
   const [tabAudioModalOpen, setTabAudioModalOpen] = useState(false);
   const [liveSubtitlesOpen, setLiveSubtitlesOpen] = useState(false);
+  const [writingModalOpen, setWritingModalOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
@@ -948,6 +950,17 @@ export function StudioView({
 
             <button
               type="button"
+              onClick={() => setWritingModalOpen(true)}
+              aria-label="Writing Assistant"
+              title="Grammarly-Grade Writing Assistant & Anti-AI Guardian"
+              className="inline-flex items-center gap-1.5 h-9 px-2 text-xs font-medium text-primary bg-accent-soft hover:bg-accent-soft/80 border border-primary/20 rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              <SpellCheck2 className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span className="hidden md:inline">Assistant</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setAnalyticsOpen(true)}
               aria-label="Analytics"
               title="Draft Analytics"
@@ -1407,8 +1420,8 @@ export function StudioView({
 
       {/* Bottom Floating Dictation Dock (collapsed in Focus Mode for distraction-free writing) */}
       {!focusMode && (
-        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-2xl mx-auto mt-5">
-          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-3 py-2 sm:px-5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-2xl mx-auto mt-5 px-2 sm:px-0">
+          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-2.5 py-2 sm:px-5 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-4 overflow-x-auto">
             {tabCapture?.isCapturing ? (
               <div className="flex items-center gap-2">
                 <button
@@ -1433,11 +1446,11 @@ export function StudioView({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={onToggleListening}
-                  className={`inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 sm:px-5 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                  className={`inline-flex items-center justify-center gap-2 min-h-[44px] px-3 sm:px-5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 ${
                     isListening
                       ? 'bg-danger text-white hover:opacity-90 focus-visible:outline-danger'
                       : 'bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-primary'
@@ -1460,29 +1473,41 @@ export function StudioView({
                   type="button"
                   onClick={() => setTabAudioModalOpen(true)}
                   title="Capture YouTube, Tab, or System Audio"
-                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
+                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2.5 sm:px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
                 >
                   <Monitor className="w-4 h-4 text-primary shrink-0" />
-                  <span className="hidden sm:inline">Tab Audio</span>
+                  <span className="hidden md:inline">Tab Audio</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setLiveSubtitlesOpen(true)}
-                  title="DeepL Voice: Live Bilingual Subtitles & Face-to-Face Translation"
-                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
+                  title="Voice Studio: Live Bilingual Subtitles & Face-to-Face Translation"
+                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2.5 sm:px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
                 >
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span className="hidden sm:inline">DeepL Voice</span>
+                  <span className="hidden md:inline">Voice Studio</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setWritingModalOpen(true)}
+                  title="Writing Assistant: Grammarly-Grade Grammar, Clarity & Anti-AI Guardian"
+                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2.5 sm:px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
+                >
+                  <SpellCheck2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="hidden md:inline">Assistant</span>
                 </button>
               </div>
             )}
 
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <WaveformVisualizer
-                isListening={isListening || Boolean(tabCapture?.isCapturing)}
-                analyserRef={tabCapture?.isCapturing ? tabCapture.analyserRef : analyserRef}
-              />
+              <div className="hidden sm:block">
+                <WaveformVisualizer
+                  isListening={isListening || Boolean(tabCapture?.isCapturing)}
+                  analyserRef={tabCapture?.isCapturing ? tabCapture.analyserRef : analyserRef}
+                />
+              </div>
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs whitespace-nowrap shrink-0">
                 <span
                   className={`font-medium ${
@@ -1582,7 +1607,7 @@ export function StudioView({
         />
       )}
 
-      {/* DeepL Voice Live Bilingual Subtitles & Conversation Modal */}
+      {/* Voice Studio Live Bilingual Subtitles & Conversation Modal */}
       <LiveSubtitlesModal
         open={liveSubtitlesOpen}
         onClose={() => setLiveSubtitlesOpen(false)}
@@ -1594,6 +1619,17 @@ export function StudioView({
           onContentChange(content + txt, htmlContent + txt);
         }}
         onSpeakText={onSpeakText}
+        theme={theme}
+      />
+
+      {/* Grammarly-Grade Writing Assistant & Anti-AI Guardian Drawer */}
+      <WritingAssistantModal
+        open={writingModalOpen}
+        content={content}
+        onUpdateContent={(newContent) => {
+          onContentChange(newContent, plainTextToHtml(newContent));
+        }}
+        onClose={() => setWritingModalOpen(false)}
         theme={theme}
       />
     </div>

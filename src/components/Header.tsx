@@ -367,6 +367,13 @@ export function Header({
           );
         })}
 
+        <a
+          href="./guides/"
+          className="relative py-2.5 text-sm font-medium text-muted hover:text-foreground whitespace-nowrap shrink-0"
+        >
+          <span>Guides</span>
+        </a>
+
         {showPunctuation && (
           <span
             role="status"
