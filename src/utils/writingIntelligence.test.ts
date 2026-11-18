@@ -20,7 +20,7 @@ test('analyzeWriting flags correctness slips (subject-verb, homophones, contract
   assert.ok(fixed.includes("Don't"));
 });
 
-test('analyzeWriting trims wordy phrases (Grammarly Clarity)', () => {
+test('analyzeWriting trims wordy phrases (Clarity & Conciseness)', () => {
   const sample = 'We did this in order to make a decision due to the fact that time was short.';
   const report = analyzeWriting(sample);
 

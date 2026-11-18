@@ -134,7 +134,7 @@ export function Header({
           </button>
 
           {/* Zone 2: Concise single-line desktop nav */}
-          <nav aria-label="Primary workspace navigation" className="hidden lg:flex items-center gap-3.5 xl:gap-6 h-full">
+          <nav aria-label="Primary workspace navigation" className="hidden lg:flex items-center gap-2 xl:gap-5 h-full">
             {NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -180,9 +180,7 @@ export function Header({
               aria-live="polite"
               data-testid="header-save-status"
               title={lastSyncedTooltip}
-              className={`hidden md:inline-flex ${
-                showPunctuation ? 'md:hidden xl:inline-flex' : ''
-              } items-center gap-1 text-[11px] text-muted tabular-nums whitespace-nowrap shrink-0 pr-0.5`}
+              className="hidden xl:inline-flex items-center gap-1 text-[11px] text-muted tabular-nums whitespace-nowrap shrink-0 pr-0.5"
             >
               {saveStatus === 'saving' ? (
                 <>
@@ -229,7 +227,7 @@ export function Header({
                 ) : (
                   <Download className="w-4 h-4 shrink-0" aria-hidden="true" />
                 )}
-                <span>Export</span>
+                <span className="hidden min-[380px]:inline">Export</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-muted transition-transform duration-150 shrink-0 ${
                     exportOpen ? 'rotate-180' : ''
@@ -326,7 +324,7 @@ export function Header({
               className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3.5 py-2 min-h-[38px] text-xs sm:text-[13px] xl:text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover active:scale-[0.99] rounded-control transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <Plus className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>
+              <span className="hidden min-[360px]:inline">
                 New<span className="hidden min-[430px]:inline"> Note</span>
               </span>
             </button>

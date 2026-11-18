@@ -1,7 +1,7 @@
 /**
  * VoiceScribe Writing Intelligence Suite
  * Advanced Grammar, Clarity, Vocabulary & Anti-AI-Slop Engine
- * Implements Grammarly Premium-grade text analysis, clarity rephrasing,
+ * Implements advanced editorial text analysis, clarity rephrasing,
  * and human authenticity protection without robotic AI clichés.
  */
 
@@ -269,7 +269,7 @@ const CORRECTNESS_RULES: RulePattern[] = [
   },
 ];
 
-// 2. Clarity & Conciseness (Grammarly's Top Paid Feature)
+// 2. Clarity & Conciseness (Editorial Polish)
 const CLARITY_RULES: RulePattern[] = [
   {
     regex: /\bin order to\b/gi,
@@ -395,7 +395,7 @@ const CLARITY_RULES: RulePattern[] = [
   },
 ];
 
-// 3. Engagement & Vocabulary Upgrades (Grammarly Premium)
+// 3. Engagement & Vocabulary Upgrades
 const ENGAGEMENT_RULES: RulePattern[] = [
   {
     regex: /\bvery good\b/gi,
@@ -536,7 +536,7 @@ const ANTI_AI_RULES: RulePattern[] = [
 const ALL_RULES = [...CORRECTNESS_RULES, ...CLARITY_RULES, ...ENGAGEMENT_RULES, ...ANTI_AI_RULES];
 
 /**
- * Scans text and generates full Grammarly-grade issue reports and score.
+ * Scans text and generates full editorial issue reports and score.
  */
 export function analyzeWriting(text: string): WritingScore {
   const trimmed = text.trim();
@@ -732,7 +732,7 @@ export function applySingleFix(text: string, issue: WritingIssue): string {
 }
 
 /**
- * Applies all non-conflicting suggestions in one click (Grammarly Instant Polish).
+ * Applies all non-conflicting suggestions in one click (Instant Polish).
  */
 export function applyAllImprovements(text: string, issues: WritingIssue[]): string {
   let result = text;
@@ -745,7 +745,7 @@ export function applyAllImprovements(text: string, issues: WritingIssue[]): stri
 }
 
 /**
- * Tone Rewriting Presets (Grammarly Premium Tone Adjuster)
+ * Tone Rewriting Presets (Tone Adjuster)
  */
 export function adjustTone(
   text: string,

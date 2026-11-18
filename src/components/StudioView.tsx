@@ -954,7 +954,7 @@ export function StudioView({
               type="button"
               onClick={() => setWritingModalOpen(true)}
               aria-label="Writing Assistant"
-              title="Grammarly-Grade Writing Assistant & Anti-AI Guardian"
+              title="Editorial Writing Assistant & Anti-AI Guardian"
               className="inline-flex items-center gap-1.5 h-9 px-2 text-xs font-medium text-primary bg-accent-soft hover:bg-accent-soft/80 border border-primary/20 rounded-control transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <SpellCheck2 className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -1407,7 +1407,7 @@ export function StudioView({
             </div>
           )}
 
-          {/* Non-intrusive real-time Grammarly Quality score & word counter */}
+          {/* Non-intrusive real-time Editorial Quality score & word counter */}
           <div data-print-hide="true" className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
             <button
               type="button"
@@ -1419,7 +1419,7 @@ export function StudioView({
                   ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
                   : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
               }`}
-              title="Grammarly-Grade Writing Intelligence & Anti-AI Guardian"
+              title="Editorial Writing Intelligence & Anti-AI Guardian"
             >
               <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center font-bold text-[10px] font-mono">
                 {hasContent ? writingScore.overall : '100'}
@@ -1429,7 +1429,7 @@ export function StudioView({
                   ? writingScore.issues.length === 0
                     ? 'All clear'
                     : `${writingScore.issues.length} ${writingScore.issues.length === 1 ? 'suggestion' : 'suggestions'}`
-                  : 'Grammarly Ready'}
+                  : 'Editorial Ready'}
               </span>
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
             </button>
@@ -1447,8 +1447,8 @@ export function StudioView({
 
       {/* Bottom Floating Dictation Dock (collapsed in Focus Mode for distraction-free writing) */}
       {!focusMode && (
-        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-4xl mx-auto mt-5 px-3">
-          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-4 py-2.5 sm:px-6 sm:py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 sm:gap-4">
+        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-4xl mx-auto mt-5 px-2 sm:px-3">
+          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-2.5 py-2 sm:px-6 sm:py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-4">
             {tabCapture?.isCapturing ? (
               <div className="flex items-center gap-2">
                 <button
@@ -1473,7 +1473,7 @@ export function StudioView({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
                 <button
                   type="button"
                   onClick={onToggleListening}
@@ -1519,7 +1519,7 @@ export function StudioView({
                 <button
                   type="button"
                   onClick={() => setWritingModalOpen(true)}
-                  title="Writing Assistant: Grammarly-Grade Grammar, Clarity & Anti-AI Guardian"
+                  title="Writing Assistant: Grammar, Clarity & Style Guardian"
                   className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2.5 sm:px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
                 >
                   <SpellCheck2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -1649,22 +1649,24 @@ export function StudioView({
         theme={theme}
       />
 
-      {/* Grammarly-Grade Writing Assistant & Anti-AI Guardian Drawer */}
-      <WritingAssistantModal
-        open={writingModalOpen}
-        content={content}
-        onUpdateContent={(newContent) => {
-          const newHtml = plainTextToHtml(newContent);
-          if (editorRef.current) {
-            editorRef.current.innerHTML = newHtml;
-            lastSyncedRef.current = { noteId, html: newHtml };
-          }
-          onContentChange(newContent, newHtml);
-          flashNotice('Improvements applied');
-        }}
-        onClose={() => setWritingModalOpen(false)}
-        theme={theme}
-      />
+      {/* Editorial Writing Assistant & Anti-AI Guardian Drawer */}
+      {writingModalOpen && (
+        <WritingAssistantModal
+          open={writingModalOpen}
+          content={content}
+          onUpdateContent={(newContent) => {
+            const newHtml = plainTextToHtml(newContent);
+            if (editorRef.current) {
+              editorRef.current.innerHTML = newHtml;
+              lastSyncedRef.current = { noteId, html: newHtml };
+            }
+            onContentChange(newContent, newHtml);
+            flashNotice('Improvements applied');
+          }}
+          onClose={() => setWritingModalOpen(false)}
+          theme={theme}
+        />
+      )}
     </div>
   );
 }

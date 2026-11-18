@@ -42,15 +42,14 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
   const [toneNotice, setToneNotice] = useState<string | null>(null);
 
   const scoreData = useMemo(() => analyzeWriting(content), [content]);
-
-  if (!open) return null;
-
   const { overall, correctness, clarity, engagement, delivery, detectedTone, issues } = scoreData;
 
   const filteredIssues = useMemo(() => {
     if (selectedCategory === 'all') return issues;
     return issues.filter((i) => i.category === selectedCategory);
   }, [issues, selectedCategory]);
+
+  if (!open) return null;
 
   const handleApplyFix = (issue: WritingIssue) => {
     const updated = applySingleFix(content, issue);
@@ -218,13 +217,6 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
             ))}
           </div>
         </div>
-
-        {toneNotice && (
-          <div className="mx-5 mt-3 p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{toneNotice}</span>
-          </div>
-        )}
 
         {/* Category Tabs */}
         <div className="flex border-b border-border px-5 gap-2 bg-surface overflow-x-auto text-xs">
