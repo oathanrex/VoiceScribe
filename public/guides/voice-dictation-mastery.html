@@ -6,6 +6,7 @@
   <title>Voice Dictation Mastery: How to Type at 140 WPM with Your Voice - VoiceScribe</title>
   <meta name="description" content="Master voice dictation and speech-to-text writing. Learn pacing, breathing, hands-free punctuation commands, and flow-state typing techniques.">
   <link rel="canonical" href="https://oathanrex.github.io/VoiceScribe/guides/voice-dictation-mastery.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="./guides-theme.css">
   <script>
     (function() {
@@ -20,33 +21,54 @@
 </head>
 <body>
 
-  <header class="hub-header">
-    <div class="brand-group">
-      <a href="../" class="logo-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
-        <span>VoiceScribe</span>
+    <!-- Sticky Unified Header matching VoiceScribe Studio -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="../" class="brand-link" title="VoiceScribe - Speech to Text Studio">
+        <span class="brand-logo-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="6" width="2" height="4" rx="1" fill="currentColor"></rect>
+            <rect x="5.5" y="3" width="2" height="10" rx="1" fill="currentColor"></rect>
+            <rect x="9" y="4.5" width="2" height="7" rx="1" fill="currentColor"></rect>
+            <rect x="12.5" y="6" width="2" height="4" rx="1" fill="currentColor"></rect>
+          </svg>
+        </span>
+        <span class="brand-wordmark">VoiceScribe</span>
+        <span class="hub-pill">Guide</span>
       </a>
-      <span class="hub-badge">Guide</span>
+
+      <nav aria-label="Primary navigation" class="header-nav">
+        <a href="../" class="nav-item">Studio</a>
+        <a href="../#notes" class="nav-item">Saved Notes</a>
+        <a href="../#commands" class="nav-item">Voice Commands</a>
+        <a href="./" class="nav-item active">
+          <span>Guides Hub</span>
+          <span class="active-indicator" aria-hidden="true"></span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="../" class="btn-studio-cta" title="Open Voice Dictation Studio">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg>
+          <span>Open Studio</span>
+        </a>
+
+        <button
+          type="button"
+          id="theme-toggle"
+          class="btn-theme-toggle"
+          aria-label="Toggle Dark Mode"
+          title="Toggle Light / Dark Mode"
+          onclick="toggleHubTheme()"
+        >
+          <span id="theme-icon"></span>
+        </button>
+      </div>
     </div>
-
-    <nav class="hub-nav">
-      <ul class="hub-nav-links">
-        <li><a href="../">Dictation Studio</a></li>
-        <li><a href="./" class="active">Guides Hub</a></li>
-        <li><a href="../about.html">About</a></li>
-        <li><a href="../contact.html">Contact Us</a></li>
-      </ul>
-
-      <button
-        type="button"
-        id="theme-toggle"
-        class="theme-toggle-btn"
-        aria-label="Toggle Dark Mode"
-        onclick="toggleHubTheme()"
-      >
-        <span id="theme-icon"></span>
-      </button>
-    </nav>
   </header>
 
   <main class="hub-container">
@@ -123,19 +145,21 @@
     </article>
   </main>
 
-  <footer class="hub-footer">
-    <div>
-      <p><strong>VoiceScribe Knowledge Hub</strong> by Oathan Rex</p>
-      <p style="margin-top: 0.25rem; font-size: 0.775rem;">Client-side speech processing: No audio recordings or voice transcripts are ever sent to external servers.</p>
-    </div>
+    <!-- Unified Footer matching VoiceScribe Studio -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-copy">
+        <p>© 2026 VoiceScribe. Browser-local speech-to-text workspace.</p>
+      </div>
 
-    <ul class="hub-footer-links">
-      <li><a href="../privacy-policy.html">Privacy Policy</a></li>
-      <li><a href="../terms.html">Terms of Service</a></li>
-      <li><a href="../about.html">About Us</a></li>
-      <li><a href="../contact.html">Contact Us</a></li>
-      <li><a href="./">Guides Hub</a></li>
-    </ul>
+      <nav aria-label="Footer navigation" class="footer-nav">
+        <a href="./" class="footer-link">Knowledge Hub &amp; Guides</a>
+        <a href="../about.html" class="footer-link">About &amp; E-E-A-T</a>
+        <a href="../privacy-policy.html" class="footer-link">Privacy Policy</a>
+        <a href="../terms.html" class="footer-link">Terms of Use</a>
+        <a href="../contact.html" class="footer-link">Contact Reachability</a>
+      </nav>
+    </div>
   </footer>
 
   <script>
@@ -143,15 +167,20 @@
     var MOON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
 
     function updateThemeIcon() {
-      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark');
       var icon = document.getElementById('theme-icon');
       if (icon) icon.innerHTML = isDark ? SUN_SVG : MOON_SVG;
     }
 
     function toggleHubTheme() {
-      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark');
       var next = isDark ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
       localStorage.setItem('voicescribe_theme', next);
       updateThemeIcon();
     }
