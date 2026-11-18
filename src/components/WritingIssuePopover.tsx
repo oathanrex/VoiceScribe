@@ -114,8 +114,8 @@ export const WritingIssuePopover: React.FC<WritingIssuePopoverProps> = ({
         </span>
       </div>
 
-      {/* Explanation */}
-      <p className="text-xs text-muted leading-relaxed line-clamp-3">{issue.explanation}</p>
+      {/* Description / Rule Context */}
+      <p className="text-xs text-muted leading-relaxed line-clamp-3">{issue.description}</p>
 
       {/* Actions: Accept & Dismiss */}
       <div className="flex items-center justify-between pt-1 border-t border-border/40 mt-1">
