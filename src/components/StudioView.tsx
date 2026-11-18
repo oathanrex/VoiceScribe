@@ -1650,7 +1650,7 @@ export function StudioView({
               </div>
             </div>
 
-            <span className="hidden sm:inline-block text-xs font-mono text-muted whitespace-nowrap shrink-0">
+            <span className="hidden lg:inline-block text-xs font-mono text-muted whitespace-nowrap shrink-0">
               Ctrl+M
             </span>
           </div>
