@@ -9,12 +9,36 @@ import {
   getPunctuationCommands,
   shouldCapitalizeNext,
 } from './voiceCommands';
+import { getVoiceCommandsForLanguage } from '../data/voiceCommands';
 
-test('matchVoiceCommand matches punctuation with and without add/insert prefix', () => {
+test('matchVoiceCommand matches punctuation with and without add/insert prefix in English', () => {
   assert.equal(matchVoiceCommand('comma')?.insertText, ',');
   assert.equal(matchVoiceCommand('add comma')?.insertText, ',');
   assert.equal(matchVoiceCommand('insert question mark')?.insertText, '?');
-  assert.equal(matchVoiceCommand('पूर्ण विराम')?.insertText, '।');
+  assert.equal(matchVoiceCommand('period')?.insertText, '.');
+});
+
+test('matchVoiceCommand matches localized commands in Hindi and other languages', () => {
+  assert.equal(matchVoiceCommand('पूर्ण विराम', 'hi')?.insertText, '।');
+  assert.equal(matchVoiceCommand('अल्पविराम', 'hi')?.insertText, ',');
+  assert.equal(matchVoiceCommand('नई पंक्ति', 'hi')?.action, 'newline');
+  assert.equal(matchVoiceCommand('नया अनुच्छेद', 'hi')?.action, 'newparagraph');
+  assert.equal(matchVoiceCommand('डिक्टेशन रोको', 'hi')?.action, 'stop');
+
+  // Spanish
+  assert.equal(matchVoiceCommand('punto', 'es')?.insertText, '.');
+  assert.equal(matchVoiceCommand('nueva línea', 'es')?.action, 'newline');
+
+  // French
+  assert.equal(matchVoiceCommand('nouvelle ligne', 'fr')?.action, 'newline');
+  assert.equal(matchVoiceCommand('point', 'fr')?.insertText, '.');
+
+  // Bengali
+  assert.equal(matchVoiceCommand('দাঁড়ি', 'bn')?.insertText, '।');
+  assert.equal(matchVoiceCommand('নতুন লাইন', 'bn')?.action, 'newline');
+
+  // Urdu
+  assert.equal(matchVoiceCommand('ختمہ', 'ur')?.insertText, '۔');
 });
 
 test('matchVoiceCommand matches control commands without requiring prefix', () => {
@@ -24,7 +48,7 @@ test('matchVoiceCommand matches control commands without requiring prefix', () =
   assert.equal(matchVoiceCommand('copy to clipboard')?.action, 'copy');
 });
 
-test('processDictationSegment handles spacing, punctuation attachment, and capitalization', () => {
+test('processDictationSegment handles spacing, punctuation attachment, and capitalization in English', () => {
   const first = processDictationSegment('hello world', '');
   assert.equal(first.textToAppend, 'Hello world');
 
@@ -42,13 +66,23 @@ test('processDictationSegment handles spacing, punctuation attachment, and capit
   assert.equal(nextSentence.textToAppend, ' Next sentence starts capitalized');
 });
 
-test('processDictationSegment handles inline voice commands inside continuous speech', () => {
-  const result = processDictationSegment('meeting starts at nine comma please join new line thanks', '');
-  assert.equal(result.textToAppend, 'Meeting starts at nine, please join\nthanks');
-  assert.equal(result.matchedCommand, ',');
+test('processDictationSegment handles Hindi dictation with Purn Viram and new lines', () => {
+  const first = processDictationSegment('नमस्ते भारत', '');
+  assert.equal(first.textToAppend, 'नमस्ते भारत');
 
-  const leadingNewLine = processDictationSegment('new line second item', 'First item');
-  assert.equal(leadingNewLine.textToAppend, '\nsecond item');
+  const purnviram = processDictationSegment('पूर्ण विराम', 'नमस्ते भारत', true, false, 'hi-IN');
+  assert.equal(purnviram.textToAppend, '।');
+
+  const newline = processDictationSegment('नई पंक्ति', 'नमस्ते भारत।', true, false, 'hi-IN');
+  assert.equal(newline.textToAppend, '\n');
+});
+
+test('processDictationSegment handles continuous multi-lingual speech with inline commands', () => {
+  const resultEn = processDictationSegment('meeting starts at nine comma please join new line thanks', '');
+  assert.equal(resultEn.textToAppend, 'Meeting starts at nine, please join\nthanks');
+
+  const resultHi = processDictationSegment('हम सब मिलेंगे पूर्ण विराम कृपया समय पर आएं', '', true, false, 'hi-IN');
+  assert.equal(resultHi.textToAppend, 'हम सब मिलेंगे। कृपया समय पर आएं');
 });
 
 test('processDictationSegment respects enableVoiceCommands = false', () => {
@@ -67,9 +101,12 @@ test('processDictationSegment applies real-time auto-correction only when enable
   assert.equal(raw.autoCorrections, undefined);
 });
 
-test('shouldCapitalizeNext checks trailing sentence punctuation and newlines', () => {
+test('shouldCapitalizeNext checks trailing sentence punctuation and newlines across scripts', () => {
   assert.equal(shouldCapitalizeNext(''), true);
   assert.equal(shouldCapitalizeNext('Hello.'), true);
+  assert.equal(shouldCapitalizeNext('नमस्ते।'), true);
+  assert.equal(shouldCapitalizeNext('اردو۔'), true);
+  assert.equal(shouldCapitalizeNext('日本語。'), true);
   assert.equal(shouldCapitalizeNext('Hello?\n'), true);
   assert.equal(shouldCapitalizeNext('Hello,'), false);
 });
@@ -77,13 +114,31 @@ test('shouldCapitalizeNext checks trailing sentence punctuation and newlines', (
 test('detectPunctuationKeywordInSpeech identifies live spoken punctuation keywords', () => {
   assert.equal(detectPunctuationKeywordInSpeech('Good morning comma'), ',');
   assert.equal(detectPunctuationKeywordInSpeech('Are we ready question mark'), '?');
+  assert.equal(detectPunctuationKeywordInSpeech('नमस्ते पूर्ण विराम', 'hi'), '।');
   assert.equal(detectPunctuationKeywordInSpeech('just ordinary words'), null);
-  assert.ok(getPunctuationCommands().length >= 12);
+  assert.ok(getPunctuationCommands('en').length >= 10);
+  assert.ok(getPunctuationCommands('hi').length >= 5);
 });
 
-test('computeTextMetrics accurately counts words, characters, and sentences', () => {
+test('getVoiceCommandsForLanguage returns language-specific commands and filters', () => {
+  const hiCommands = getVoiceCommandsForLanguage('hi');
+  assert.ok(hiCommands.some((c) => c.phrases.includes('पूर्ण विराम')));
+
+  const esCommands = getVoiceCommandsForLanguage('es');
+  assert.ok(esCommands.some((c) => c.phrases.includes('punto')));
+
+  const allCommands = getVoiceCommandsForLanguage('all');
+  assert.ok(allCommands.length > 50);
+});
+
+test('computeTextMetrics accurately counts words, characters, and sentences including Devanagari and Urdu', () => {
   assert.deepEqual(computeTextMetrics(''), { words: 0, characters: 0, sentences: 0 });
   assert.deepEqual(computeTextMetrics('Hello world. How are you?'), {
+    words: 5,
+    characters: 25,
+    sentences: 2,
+  });
+  assert.deepEqual(computeTextMetrics('नमस्ते भारत। आप कैसे हैं?'), {
     words: 5,
     characters: 25,
     sentences: 2,

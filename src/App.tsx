@@ -382,7 +382,8 @@ export default function App() {
       rawSegment,
       current.content,
       voiceCommandsRef.current,
-      autoCorrectRef.current
+      autoCorrectRef.current,
+      selectedLanguage.code
     );
 
     if (result.matchedCommand) {
@@ -866,7 +867,7 @@ export default function App() {
 
   const interimPunctuationLabel =
     voiceCommandsEnabled && recognition.isListening
-      ? detectPunctuationKeywordInSpeech(recognition.interimText)
+      ? detectPunctuationKeywordInSpeech(recognition.interimText, selectedLanguage.code)
       : null;
 
   const punctuationStatus = useMemo(
@@ -981,7 +982,12 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'commands' && <CommandsView onInsertToken={handleInsertToken} />}
+        {activeTab === 'commands' && (
+          <CommandsView
+            onInsertToken={handleInsertToken}
+            activeLanguage={selectedLanguage}
+          />
+        )}
 
         {activeTab === 'guide' && (
           <GuideView
