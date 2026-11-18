@@ -59,3 +59,14 @@ test('adjustTone applies tone transformation correctly', () => {
   assert.ok(direct.includes('to succeed'));
   assert.ok(!direct.includes('—'));
 });
+
+test('analyzeWriting detects spelling slips from phonetic dictionary and grammar idioms', () => {
+  const raw = 'Teh team did not went there because i am agree with them.';
+  const report = analyzeWriting(raw);
+  assert.ok(report.issues.length >= 3);
+
+  const fixed = applyAllImprovements(raw, report.issues);
+  assert.ok(fixed.includes('The'));
+  assert.ok(fixed.includes('did not go'));
+  assert.ok(fixed.includes('I agree'));
+});

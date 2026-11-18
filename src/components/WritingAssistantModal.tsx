@@ -55,11 +55,15 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
   const handleApplyFix = (issue: WritingIssue) => {
     const updated = applySingleFix(content, issue);
     onUpdateContent(updated);
+    setToneNotice(`Fixed: "${issue.original}" → "${issue.replacement}"`);
+    setTimeout(() => setToneNotice(null), 2200);
   };
 
   const handleApplyAll = () => {
     const updated = applyAllImprovements(content, issues);
     onUpdateContent(updated);
+    setToneNotice(`All ${issues.length} improvements applied successfully!`);
+    setTimeout(() => setToneNotice(null), 2500);
   };
 
   const handleToneChange = (targetTone: 'professional' | 'direct' | 'casual' | 'academic') => {
@@ -142,6 +146,14 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Live Action Notice Banner */}
+        {toneNotice && (
+          <div className="mx-5 my-2.5 px-4 py-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-2 animate-fade-in shadow-sm">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span>{toneNotice}</span>
+          </div>
+        )}
 
         {/* Dashboard: Score Ring & 4 Pillars */}
         <div className="px-5 py-4 border-b border-border bg-surface flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -243,19 +255,47 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
         {/* Issues List Body */}
         <div className="p-5 overflow-y-auto space-y-3 flex-1 text-sm">
           {filteredIssues.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-12 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <CheckCircle2 className="w-7 h-7" />
+            !content.trim() ? (
+              <div className="flex flex-col items-center justify-center text-center py-12 space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <FileCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Your Document is Empty
+                  </h3>
+                  <p className="text-xs text-muted max-w-sm mt-1">
+                    Type or dictate notes in VoiceScribe to get real-time grammar, clarity, and Anti-AI feedback.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sample = "We was going to the office in order to complete teh project. It was a very good meeting, and i am agree that we must delve into the rich tapestry of ideas — without further ado.";
+                    onUpdateContent(sample);
+                    setToneNotice("Sample test draft loaded with grammar & clarity issues!");
+                    setTimeout(() => setToneNotice(null), 2500);
+                  }}
+                  className="mt-2 px-4 py-2 text-xs font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm transition-all"
+                >
+                  Load Sample Text with Grammar Issues to Test
+                </button>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  Zero Issues in This Category!
-                </h3>
-                <p className="text-xs text-muted max-w-sm mt-1">
-                  Your text is crisp, grammatically sound, and free of automated AI clichés.
-                </p>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center py-12 space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <CheckCircle2 className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Zero Issues in This Category!
+                  </h3>
+                  <p className="text-xs text-muted max-w-sm mt-1">
+                    Your text is crisp, grammatically sound, and free of automated AI clichés.
+                  </p>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             filteredIssues.map((issue) => {
               const badge = getCategoryBadge(issue.category);

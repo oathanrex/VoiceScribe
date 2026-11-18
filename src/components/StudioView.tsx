@@ -69,6 +69,7 @@ import { WaveformVisualizer } from './WaveformVisualizer';
 import { TabAudioModal } from './TabAudioModal';
 import { LiveSubtitlesModal } from './LiveSubtitlesModal';
 import { WritingAssistantModal } from './WritingAssistantModal';
+import { analyzeWriting } from '../utils/writingIntelligence';
 import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
 interface StudioViewProps {
@@ -227,6 +228,7 @@ export function StudioView({
   const metrics = useMemo(() => computeTextMetrics(content), [content]);
   const liveText = interimText ? `${content} ${interimText}` : content;
   const liveMetrics = useMemo(() => computeTextMetrics(liveText), [liveText]);
+  const writingScore = useMemo(() => analyzeWriting(content), [content]);
   const hasContent = content.trim().length > 0;
   const findMatchCount = useMemo(
     () => (findOpen ? countQueryMatches(content, findQuery, caseSensitive) : 0),
@@ -1405,8 +1407,33 @@ export function StudioView({
             </div>
           )}
 
-          {/* Non-intrusive real-time word counter in bottom-right corner */}
-          <div data-print-hide="true" className="mt-4 flex justify-end">
+          {/* Non-intrusive real-time Grammarly Quality score & word counter */}
+          <div data-print-hide="true" className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
+            <button
+              type="button"
+              onClick={() => setWritingModalOpen(true)}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                writingScore.overall >= 85
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                  : writingScore.overall >= 65
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
+              }`}
+              title="Grammarly-Grade Writing Intelligence & Anti-AI Guardian"
+            >
+              <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center font-bold text-[10px] font-mono">
+                {hasContent ? writingScore.overall : '100'}
+              </span>
+              <span>
+                {hasContent
+                  ? writingScore.issues.length === 0
+                    ? 'All clear'
+                    : `${writingScore.issues.length} ${writingScore.issues.length === 1 ? 'suggestion' : 'suggestions'}`
+                  : 'Grammarly Ready'}
+              </span>
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            </button>
+
             <span
               data-testid="realtime-word-counter"
               aria-live="polite"
@@ -1420,8 +1447,8 @@ export function StudioView({
 
       {/* Bottom Floating Dictation Dock (collapsed in Focus Mode for distraction-free writing) */}
       {!focusMode && (
-        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-2xl mx-auto mt-5 px-2 sm:px-0">
-          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-2.5 py-2 sm:px-5 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-4 overflow-x-auto">
+        <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-4xl mx-auto mt-5 px-3">
+          <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-4 py-2.5 sm:px-6 sm:py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 sm:gap-4">
             {tabCapture?.isCapturing ? (
               <div className="flex items-center gap-2">
                 <button
@@ -1627,7 +1654,13 @@ export function StudioView({
         open={writingModalOpen}
         content={content}
         onUpdateContent={(newContent) => {
-          onContentChange(newContent, plainTextToHtml(newContent));
+          const newHtml = plainTextToHtml(newContent);
+          if (editorRef.current) {
+            editorRef.current.innerHTML = newHtml;
+            lastSyncedRef.current = { noteId, html: newHtml };
+          }
+          onContentChange(newContent, newHtml);
+          flashNotice('Improvements applied');
         }}
         onClose={() => setWritingModalOpen(false)}
         theme={theme}

@@ -8,7 +8,7 @@ export interface AutoCorrectResult {
   changes: AutoCorrectChange[];
 }
 
-const PHONETIC_TYPOS: Record<string, string> = {
+export const PHONETIC_TYPOS: Record<string, string> = {
   // Common ASR / phonetic spelling slips
   alot: 'a lot',
   teh: 'the',
@@ -84,7 +84,7 @@ const PHONETIC_TYPOS: Record<string, string> = {
   theres: "there's",
 };
 
-const PROPER_NOUN_CASING: Record<string, string> = {
+export const PROPER_NOUN_CASING: Record<string, string> = {
   monday: 'Monday',
   tuesday: 'Tuesday',
   wednesday: 'Wednesday',

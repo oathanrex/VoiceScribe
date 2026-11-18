@@ -5,6 +5,8 @@
  * and human authenticity protection without robotic AI clichés.
  */
 
+import { PHONETIC_TYPOS, PROPER_NOUN_CASING } from './autoCorrect';
+
 export type IssueCategory = 'correctness' | 'clarity' | 'engagement' | 'anti-ai';
 
 export interface WritingIssue {
@@ -139,6 +141,130 @@ const CORRECTNESS_RULES: RulePattern[] = [
     },
     title: 'Missing Apostrophe',
     description: 'Add an apostrophe to form standard contractions.',
+    category: 'correctness',
+  },
+
+  // Past tense with auxiliary "did"
+  {
+    regex: /\b(did|didn't|did not)\s+went\b/gi,
+    replacement: '$1 go',
+    title: 'Double Past Tense',
+    description: 'Use the base form of the verb ("go") after "did".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(did|didn't|did not)\s+saw\b/gi,
+    replacement: '$1 see',
+    title: 'Double Past Tense',
+    description: 'Use the base form of the verb ("see") after "did".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(did|didn't|did not)\s+had\b/gi,
+    replacement: '$1 have',
+    title: 'Double Past Tense',
+    description: 'Use the base form ("have") after "did".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(did|didn't|did not)\s+came\b/gi,
+    replacement: '$1 come',
+    title: 'Double Past Tense',
+    description: 'Use the base form ("come") after "did".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(did|didn't|did not)\s+knew\b/gi,
+    replacement: '$1 know',
+    title: 'Double Past Tense',
+    description: 'Use the base form ("know") after "did".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(does|doesn't|does not)\s+knows\b/gi,
+    replacement: '$1 know',
+    title: 'Subject-Verb Agreement',
+    description: 'Use the base form ("know") after "does".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(does|doesn't|does not)\s+has\b/gi,
+    replacement: '$1 have',
+    title: 'Subject-Verb Agreement',
+    description: 'Use the base form ("have") after "does".',
+    category: 'correctness',
+  },
+  // Indian English & common dictation slips
+  {
+    regex: /\b(i|I)\s+(am\s+agree|'m\s+agree)\b/g,
+    replacement: 'I agree',
+    title: 'Grammar Concord',
+    description: 'Use "I agree" rather than "I am agree".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(more\s+better)\b/gi,
+    replacement: 'better',
+    title: 'Double Comparative',
+    description: '"Better" is already comparative; omit "more".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(most\s+best)\b/gi,
+    replacement: 'best',
+    title: 'Double Superlative',
+    description: '"Best" is already superlative; omit "most".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(revert\s+back)\b/gi,
+    replacement: 'reply',
+    title: 'Redundant Phrase',
+    description: 'Use "reply" or "respond" instead of "revert back".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(discuss\s+about)\b/gi,
+    replacement: 'discuss',
+    title: 'Redundant Preposition',
+    description: '"Discuss" does not require the preposition "about".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(order\s+for)\s+(food|coffee|items|tea|lunch)\b/gi,
+    replacement: 'order $1',
+    title: 'Redundant Preposition',
+    description: 'Use "order" directly without "for".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(cope\s+up\s+with)\b/gi,
+    replacement: 'cope with',
+    title: 'Idiomatic Preposition',
+    description: 'The standard idiom is "cope with", not "cope up with".',
+    category: 'correctness',
+  },
+  {
+    regex: /\b(each\s+of\s+them)\s+were\b/gi,
+    replacement: '$1 was',
+    title: 'Subject-Verb Agreement',
+    description: '"Each" is singular and takes the singular verb "was".',
+    category: 'correctness',
+  },
+  // Capitalization of standalone pronoun "i"
+  {
+    regex: /\bi\b/g,
+    replacement: 'I',
+    title: 'Capitalization',
+    description: 'The personal pronoun "I" should always be capitalized.',
+    category: 'correctness',
+  },
+  // Spacing before punctuation
+  {
+    regex: /\s+([,.?!;:])(?=\s|$)/g,
+    replacement: '$1',
+    title: 'Punctuation Spacing',
+    description: 'Remove redundant whitespace immediately before punctuation marks.',
     category: 'correctness',
   },
 ];
@@ -469,6 +595,55 @@ export function analyzeWriting(text: string): WritingScore {
     }
   }
 
+  // Scan word-level spelling mistakes from phonetic typos dictionary
+  const wordRegex = /\b[A-Za-z']+\b/g;
+  const wordMatches = Array.from(trimmed.matchAll(wordRegex));
+  for (const wm of wordMatches) {
+    if (wm.index === undefined || !wm[0]) continue;
+    const word = wm[0];
+    const lower = word.toLowerCase();
+    const typoTarget = PHONETIC_TYPOS[lower];
+    if (typoTarget && typoTarget.toLowerCase() !== lower) {
+      // Don't duplicate if already caught by an existing rule at this index
+      if (!issues.some((i) => i.index === wm.index)) {
+        issueCounter++;
+        let replacement = typoTarget;
+        if (word[0] === word[0].toUpperCase() && word.length > 1) {
+          replacement = replacement.charAt(0).toUpperCase() + replacement.slice(1);
+        }
+        const start = Math.max(0, wm.index - 25);
+        const end = Math.min(trimmed.length, wm.index + word.length + 25);
+        issues.push({
+          id: `typo_${issueCounter}`,
+          category: 'correctness',
+          title: 'Spelling Correction',
+          description: `Spelling slip: Did you mean "${replacement}"?`,
+          original: word,
+          replacement,
+          context: '...' + trimmed.slice(start, end).trim() + '...',
+          index: wm.index,
+        });
+      }
+    } else if (PROPER_NOUN_CASING[lower] && word !== PROPER_NOUN_CASING[lower] && !word.startsWith("I'")) {
+      if (!issues.some((i) => i.index === wm.index)) {
+        issueCounter++;
+        const replacement = PROPER_NOUN_CASING[lower];
+        const start = Math.max(0, wm.index - 25);
+        const end = Math.min(trimmed.length, wm.index + word.length + 25);
+        issues.push({
+          id: `prop_${issueCounter}`,
+          category: 'correctness',
+          title: 'Proper Noun Capitalization',
+          description: `Capitalize standard calendar term: "${replacement}".`,
+          original: word,
+          replacement,
+          context: '...' + trimmed.slice(start, end).trim() + '...',
+          index: wm.index,
+        });
+      }
+    }
+  }
+
   // Deduplicate overlapping issues
   const uniqueIssues = issues.filter(
     (issue, idx, self) =>
@@ -523,12 +698,37 @@ export function analyzeWriting(text: string): WritingScore {
  */
 export function applySingleFix(text: string, issue: WritingIssue): string {
   if (!issue.original) return text;
-  // Replace only the specific occurrence
-  const idx = text.indexOf(issue.original, issue.index - 5 > 0 ? issue.index - 5 : 0);
+  // 1. Direct index match (exact location)
+  if (
+    typeof issue.index === 'number' &&
+    issue.index >= 0 &&
+    issue.index + issue.original.length <= text.length &&
+    text.slice(issue.index, issue.index + issue.original.length) === issue.original
+  ) {
+    return (
+      text.slice(0, issue.index) +
+      issue.replacement +
+      text.slice(issue.index + issue.original.length)
+    );
+  }
+  // 2. Proximity search near expected index
+  const searchStart = Math.max(0, (issue.index || 0) - 15);
+  const searchEnd = Math.min(text.length, (issue.index || 0) + issue.original.length + 15);
+  const localIdx = text.slice(searchStart, searchEnd).indexOf(issue.original);
+  if (localIdx !== -1) {
+    const actualIdx = searchStart + localIdx;
+    return (
+      text.slice(0, actualIdx) +
+      issue.replacement +
+      text.slice(actualIdx + issue.original.length)
+    );
+  }
+  // 3. Fallback: first global occurrence
+  const idx = text.indexOf(issue.original);
   if (idx !== -1) {
     return text.slice(0, idx) + issue.replacement + text.slice(idx + issue.original.length);
   }
-  return text.replace(issue.original, issue.replacement);
+  return text;
 }
 
 /**
