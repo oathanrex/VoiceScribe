@@ -19,8 +19,10 @@ import {
   Mic,
   MicOff,
   Minimize2,
+  Monitor,
   Moon,
   Printer,
+  Radio,
   Save,
   Search,
   Share2,
@@ -33,6 +35,7 @@ import {
   Underline,
   UserCheck,
   Volume2,
+  VolumeX,
   Wand2,
   Wrench,
   X,
@@ -63,6 +66,8 @@ import { AnalyticsModal } from './AnalyticsModal';
 import { FocusTimerMenu } from './FocusTimerMenu';
 import { LanguageSelector } from './LanguageSelector';
 import { WaveformVisualizer } from './WaveformVisualizer';
+import { TabAudioModal } from './TabAudioModal';
+import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
 interface StudioViewProps {
   noteId: string;
@@ -70,6 +75,7 @@ interface StudioViewProps {
   content: string;
   htmlContent: string;
   selectedLanguage: SpeechLanguage;
+  tabCapture?: UseTabAudioCaptureReturn;
   voiceCommandsEnabled: boolean;
   autoCorrectEnabled: boolean;
   focusMode: boolean;
@@ -161,6 +167,7 @@ export function StudioView({
   theme,
   saveStatus,
   lastSyncedAt,
+  tabCapture,
   onTitleChange,
   onContentChange,
   onImportDraft,
@@ -200,6 +207,7 @@ export function StudioView({
   const [sharedFeedback, setSharedFeedback] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [typographyOpen, setTypographyOpen] = useState(false);
+  const [tabAudioModalOpen, setTabAudioModalOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
@@ -1397,39 +1405,91 @@ export function StudioView({
       {!focusMode && (
         <div data-print-hide="true" className="sticky bottom-3 sm:bottom-5 z-20 max-w-2xl mx-auto mt-5">
           <div className="bg-surface/95 backdrop-blur-md border border-border rounded-2xl shadow-surface px-3 py-2 sm:px-5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
-            <button
-              type="button"
-              onClick={onToggleListening}
-              className={`inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 sm:px-5 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                isListening
-                  ? 'bg-danger text-white hover:opacity-90 focus-visible:outline-danger'
-                  : 'bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-primary'
-              }`}
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="w-4 h-4 shrink-0" aria-hidden="true" />
-                  <span>Stop Listening</span>
-                </>
-              ) : (
-                <>
-                  <Mic className="w-4 h-4 shrink-0" aria-hidden="true" />
-                  <span>Start Dictation</span>
-                </>
-              )}
-            </button>
+            {tabCapture?.isCapturing ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={tabCapture.stopTabCapture}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 sm:px-5 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 bg-danger text-white hover:opacity-90"
+                >
+                  <Radio className="w-4 h-4 shrink-0 animate-spin" aria-hidden="true" />
+                  <span>Stop Tab Capture</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={tabCapture.toggleMonitorMute}
+                  title={tabCapture.isMonitorMuted ? 'Unmute Tab Audio' : 'Mute Tab Audio'}
+                  className="p-2.5 rounded-xl border border-border bg-surface hover:bg-surface-hover text-foreground transition-colors"
+                >
+                  {tabCapture.isMonitorMuted ? (
+                    <VolumeX className="w-4 h-4 text-amber-500" />
+                  ) : (
+                    <Volume2 className="w-4 h-4 text-primary" />
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onToggleListening}
+                  className={`inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 sm:px-5 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    isListening
+                      ? 'bg-danger text-white hover:opacity-90 focus-visible:outline-danger'
+                      : 'bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-primary'
+                  }`}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      <span>Stop Listening</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      <span>Start Dictation</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setTabAudioModalOpen(true)}
+                  title="Capture YouTube, Tab, or System Audio"
+                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
+                >
+                  <Monitor className="w-4 h-4 text-primary shrink-0" />
+                  <span className="hidden sm:inline">Tab / YouTube Audio</span>
+                </button>
+              </div>
+            )}
 
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <WaveformVisualizer isListening={isListening} analyserRef={analyserRef} />
+              <WaveformVisualizer
+                isListening={isListening || Boolean(tabCapture?.isCapturing)}
+                analyserRef={tabCapture?.isCapturing ? tabCapture.analyserRef : analyserRef}
+              />
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs whitespace-nowrap shrink-0">
-                <span className={`font-medium ${isListening ? 'text-danger' : 'text-muted'}`}>
-                  {isListening ? 'Listening' : 'Ready'}
+                <span
+                  className={`font-medium ${
+                    isListening || tabCapture?.isCapturing ? 'text-danger' : 'text-muted'
+                  }`}
+                >
+                  {tabCapture?.isCapturing
+                    ? tabCapture.isTranscribing
+                      ? 'Transcribing...'
+                      : 'Tab Audio'
+                    : isListening
+                    ? 'Listening'
+                    : 'Ready'}
                 </span>
                 <span aria-hidden="true" className="text-border">
                   ·
                 </span>
                 <span className="font-mono tabular-nums text-muted">
-                  {formatDuration(elapsedSeconds)}
+                  {formatDuration(
+                    tabCapture?.isCapturing ? tabCapture.elapsedSeconds : elapsedSeconds
+                  )}
                 </span>
               </div>
             </div>
@@ -1496,6 +1556,16 @@ export function StudioView({
             </ul>
           </div>
         </div>
+      )}
+
+      {/* Tab Audio & YouTube Capture Modal */}
+      {tabCapture && (
+        <TabAudioModal
+          open={tabAudioModalOpen}
+          tabCapture={tabCapture}
+          onClose={() => setTabAudioModalOpen(false)}
+          theme={theme}
+        />
       )}
     </div>
   );

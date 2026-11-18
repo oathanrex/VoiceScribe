@@ -78,7 +78,91 @@
     </script>
   </head>
   <body class="bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground">
-    <div id="root"></div>
+    <div id="root">
+      <header style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <a href="./" style="font-size: 1.25rem; font-weight: 700; color: #0f172a; text-decoration: none;">🎙️ VoiceScribe</a>
+          <p style="font-size: 0.85rem; color: #64748b; margin: 0.25rem 0 0 0;">Free Real-Time Speech-to-Text &amp; Voice Typing in 100+ Languages</p>
+        </div>
+        <nav style="display: flex; gap: 1.25rem; font-size: 0.875rem;">
+          <a href="./" style="color: #0f172a; font-weight: 600; text-decoration: none;">Dictation Studio</a>
+          <a href="./guides/" style="color: #475569; text-decoration: none;">Guides Hub</a>
+          <a href="./about.html" style="color: #475569; text-decoration: none;">About</a>
+          <a href="./contact.html" style="color: #475569; text-decoration: none;">Contact</a>
+          <a href="./privacy-policy.html" style="color: #475569; text-decoration: none;">Privacy Policy</a>
+          <a href="./terms.html" style="color: #475569; text-decoration: none;">Terms</a>
+        </nav>
+      </header>
+
+      <main style="max-width: 900px; margin: 2rem auto; padding: 0 1rem; line-height: 1.7; color: #334155;">
+        <h1 style="font-size: 2.25rem; color: #0f172a; font-weight: 800; line-height: 1.2; margin-bottom: 1rem;">
+          VoiceScribe: High-Performance Speech-to-Text Studio &amp; Real-Time Voice Typing
+        </h1>
+        <p style="font-size: 1.1rem; color: #475569; margin-bottom: 1.5rem;">
+          VoiceScribe is a free, privacy-first browser speech-to-text dictation workspace. Dictate notes, articles, emails, and transcripts in 100+ languages with hands-free voice punctuation commands, client-side processing, and YouTube tab/audio transcription.
+        </p>
+
+        <section style="margin: 2rem 0; padding: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem;">
+          <h2 style="font-size: 1.35rem; color: #0f172a; margin-top: 0;">How to Use VoiceScribe (3-Step Quick Start)</h2>
+          <ol style="padding-left: 1.25rem; margin: 0.5rem 0 0 0;">
+            <li style="margin-bottom: 0.5rem;"><strong>Select Your Language:</strong> Choose from 100+ languages including English, Hindi, Spanish, French, German, Japanese, and regional Indic dialects.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Start Dictation:</strong> Click <em>Start Dictation</em> or press <kbd>Ctrl+M</kbd> to begin speaking naturally. Speak punctuation cues such as <em>full stop</em>, <em>comma</em>, <em>new line</em>, or <em>question mark</em>.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Export &amp; Save:</strong> Export your transcribed drafts as Markdown, plain text, PDF, or Microsoft Word documents with zero server storage.</li>
+          </ol>
+        </section>
+
+        <section style="margin: 2rem 0; padding: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem;">
+          <h2 style="font-size: 1.35rem; color: #0f172a; margin-top: 0;">Transcribe YouTube &amp; Tab Audio Streams</h2>
+          <p>
+            VoiceScribe includes native system audio capture to transcribe YouTube videos, webinars, and meeting tabs directly into notes:
+          </p>
+          <ul style="padding-left: 1.25rem; margin: 0.5rem 0 0 0;">
+            <li style="margin-bottom: 0.5rem;"><strong>Live Tab Audio Capture:</strong> Share a Chrome tab with audio enabled to stream and transcribe speech using high-speed AI Whisper or Gemini Flash.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>100% Free Loopback (Stereo Mix):</strong> Route system sound to your browser input for unlimited, completely free live typing using Chrome&rsquo;s built-in Web Speech API.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Audio &amp; Video File Transcriber:</strong> Drop MP3, WAV, M4A, or MP4 recordings to generate complete text transcripts on demand.</li>
+          </ul>
+        </section>
+
+        <section style="margin: 2.5rem 0;">
+          <h2 style="font-size: 1.5rem; color: #0f172a;">Speech Recognition Guides &amp; Knowledge Hub</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem;">
+            <div style="padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+              <h3 style="font-size: 1.05rem; margin-top: 0;"><a href="./guides/voice-dictation-mastery.html" style="color: #2563eb; text-decoration: none;">Voice Dictation Mastery &rarr;</a></h3>
+              <p style="font-size: 0.85rem; color: #64748b; margin: 0.5rem 0 0 0;">Techniques and punctuation workflows to double your typing speed with voice commands.</p>
+            </div>
+            <div style="padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+              <h3 style="font-size: 1.05rem; margin-top: 0;"><a href="./guides/hindi-indic-voice-typing.html" style="color: #2563eb; text-decoration: none;">Hindi &amp; Indic Voice Typing &rarr;</a></h3>
+              <p style="font-size: 0.85rem; color: #64748b; margin: 0.5rem 0 0 0;">Comprehensive guide to dictating in Hindi, Bengali, Tamil, Telugu, and Devanagari scripts.</p>
+            </div>
+            <div style="padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+              <h3 style="font-size: 1.05rem; margin-top: 0;"><a href="./guides/best-microphones-speech-recognition.html" style="color: #2563eb; text-decoration: none;">Best Microphones for Dictation &rarr;</a></h3>
+              <p style="font-size: 0.85rem; color: #64748b; margin: 0.5rem 0 0 0;">Hardware recommendations, acoustic positioning, and noise suppression testing.</p>
+            </div>
+            <div style="padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+              <h3 style="font-size: 1.05rem; margin-top: 0;"><a href="./guides/web-speech-api-benchmark.html" style="color: #2563eb; text-decoration: none;">Web Speech API Benchmark &rarr;</a></h3>
+              <p style="font-size: 0.85rem; color: #64748b; margin: 0.5rem 0 0 0;">Accuracy, word error rate (WER), and latency analysis across modern browsers.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer style="max-width: 1200px; margin: 3rem auto 0 auto; padding: 2rem 1rem; border-top: 1px solid #e2e8f0; font-size: 0.875rem; color: #64748b;">
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <p style="margin: 0; font-weight: 600; color: #0f172a;">VoiceScribe by Oathan Rex</p>
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem;">Client-side speech processing: We do not store or transmit your voice notes to external servers.</p>
+          </div>
+          <div style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
+            <a href="./privacy-policy.html" style="color: #475569; text-decoration: none;">Privacy Policy</a>
+            <a href="./terms.html" style="color: #475569; text-decoration: none;">Terms of Service</a>
+            <a href="./about.html" style="color: #475569; text-decoration: none;">About Us</a>
+            <a href="./contact.html" style="color: #475569; text-decoration: none;">Contact</a>
+            <a href="./guides/" style="color: #475569; text-decoration: none;">Guides Hub</a>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 0.75rem; color: #94a3b8;">&copy; 2026 VoiceScribe. Open-source productivity tool published under the MIT License.</p>
+      </footer>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

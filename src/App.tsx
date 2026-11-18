@@ -9,6 +9,7 @@ import { GuideView } from './components/GuideView';
 import { findLanguageById, SpeechLanguage } from './data/languages';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { useSpeechRecognition } from './hooks/useSpeechRecognition';
+import { useTabAudioCapture } from './hooks/useTabAudioCapture';
 import { useTextToSpeech } from './hooks/useTextToSpeech';
 import { suggestNoteTitle } from './utils/autoTitle';
 import {
@@ -449,15 +450,25 @@ export default function App() {
     onFinalTranscript: handleFinalTranscript,
   });
 
+  const tabCapture = useTabAudioCapture({
+    languageCode: selectedLanguage.code,
+    onChunkTranscribed: (text) => {
+      handleFinalTranscript(text);
+    },
+  });
+
   stopListeningRef.current = recognition.stopListening;
 
   const toggleListening = useCallback(() => {
+    if (tabCapture.isCapturing) {
+      tabCapture.stopTabCapture();
+    }
     if (recognition.isListening) {
       recognition.stopListening();
     } else {
       void recognition.startListening();
     }
-  }, [recognition]);
+  }, [recognition, tabCapture]);
 
   const handleSaveNote = useCallback(() => {
     const resolved = upsertNoteIntoLibrary(draftRef.current, languageIdRef.current, true);
@@ -933,6 +944,7 @@ export default function App() {
             theme={theme}
             saveStatus={saveStatus}
             lastSyncedAt={lastSyncedAt}
+            tabCapture={tabCapture}
             onTitleChange={(title) => setDraft((prev) => ({ ...prev, title }))}
             onContentChange={(content, htmlContent) =>
               setDraft((prev) => ({ ...prev, content, htmlContent }))
