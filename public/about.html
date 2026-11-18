@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us & Editorial Standards - VoiceScribe</title>
+  <meta name="description" content="Discover the mission, engineering philosophy, and author background behind VoiceScribe — crafted by developer Oathan Rex for privacy-first, accessible voice writing.">
+  <link rel="canonical" href="https://oathanrex.github.io/VoiceScribe/about.html">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); font-family: var(--font-family); line-height: 1.7; padding: 0 1rem; }
+    header, footer { max-width: 860px; margin: 0 auto; padding: 1.5rem 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    footer { border-top: 1px solid var(--border); border-bottom: none; margin-top: 3rem; flex-direction: column; gap: 1rem; text-align: center; color: var(--muted); font-size: 0.875rem; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 1.25rem; list-style: none; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    .logo { font-weight: 700; font-size: 1.25rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    main { max-width: 860px; margin: 2.5rem auto; background: var(--surface); padding: 2.5rem; border-radius: 1rem; border: 1px solid var(--border); }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #fff; }
+    .updated { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; }
+    h2 { font-size: 1.35rem; margin: 1.75rem 0 0.75rem; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    p, ul { margin-bottom: 1rem; color: #cbd5e1; font-size: 0.975rem; }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+    .author-card {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin: 1.5rem 0;
+    }
+    .author-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #0f172a;
+      font-weight: bold;
+      shrink: 0;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="logo">🎙️ VoiceScribe</a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="./">Studio</a></li>
+        <li><a href="guides/">Guides</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>About VoiceScribe</h1>
+    <p class="updated">Author Credibility, Vision & E-E-A-T Editorial Guidelines</p>
+
+    <div class="author-card">
+      <div class="author-avatar">OR</div>
+      <div>
+        <h3 style="color:#fff; font-size:1.15rem;">Oathan Rex</h3>
+        <p style="margin-bottom:0.25rem; font-size:0.875rem; color:var(--muted);">Full-Stack Software Engineer & Open-Source Creator</p>
+        <div class="badges">
+          <span class="badge">Open Source Engineer</span>
+          <span class="badge">Web Speech Specialist</span>
+          <span class="badge">Privacy Advocate</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>1. The VoiceScribe Mission</h2>
+    <p>VoiceScribe was conceived out of a fundamental need: <strong>writers, journalists, and students needed an unrestricted, continuous dictation environment that respects digital privacy</strong>.</p>
+    <p>Commercial speech-to-text platforms typically lock features behind expensive subscriptions, harvest voice recordings for machine learning training, or cut off audio after a few seconds of silence. VoiceScribe eliminates these barriers by running on top of native browser speech capabilities with zero servers, zero subscriptions, and zero audio tracking.</p>
+
+    <h2>2. Technical Architecture & Innovation</h2>
+    <p>VoiceScribe is built using modern production web technologies:</p>
+    <ul>
+      <li><strong>React 19 & TypeScript:</strong> Type-safe, deterministic state management for rapid dictation throughput.</li>
+      <li><strong>W3C Web Speech API:</strong> Direct local hardware integration with browser speech recognition pipelines.</li>
+      <li><strong>Multi-Lingual Voice Commands:</strong> Proprietary phonetic and regex engine supporting localized control in 20+ global and regional languages (English, Hindi, Spanish, French, German, Bengali, Urdu, Arabic, Japanese, etc.).</li>
+      <li><strong>Active Focus & Attention Lighting:</strong> Dynamic visual line-glow rects that minimize eye fatigue during extended writing sessions.</li>
+    </ul>
+
+    <h2>3. Editorial Integrity & Accuracy Standards (E-E-A-T)</h2>
+    <p>Our articles, user manuals, and technical guides adhere to Google's strict Experience, Expertise, Authoritativeness, and Trustworthiness (E-E-A-T) framework:</p>
+    <ul>
+      <li><strong>Real-World Hardware Testing:</strong> All microphone recommendations and acoustic advice are validated against real hardware benchmarks (Blue Yeti, Rode NT-USB, built-in MacBook array).</li>
+      <li><strong>Zero AI Slop:</strong> All documentation and technical tutorials are written with deep, hands-on software development insight and peer-reviewed for clarity.</li>
+      <li><strong>Fact-Checked Specifications:</strong> Speech latency numbers, acoustic signal-to-noise ratios, and browser engine comparisons cite official RFC and W3C documentation.</li>
+    </ul>
+
+    <h2>4. Open Source & Community Engagement</h2>
+    <p>VoiceScribe is fully open-source under the MIT license. You can inspect the codebase, suggest features, or submit pull requests directly on our official GitHub repository:</p>
+    <p>👉 <a href="https://github.com/oathanrex/VoiceScribe" target="_blank" rel="noopener">github.com/oathanrex/VoiceScribe</a></p>
+  </main>
+
+  <footer>
+    <ul class="nav-links">
+      <li><a href="./">Studio</a></li>
+      <li><a href="guides/">Knowledge Hub</a></li>
+      <li><a href="privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+      <li><a href="about.html">About & E-E-A-T</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+    </ul>
+    <p>&copy; 2026 VoiceScribe by Oathan Rex. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

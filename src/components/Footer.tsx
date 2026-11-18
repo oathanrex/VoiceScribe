@@ -184,34 +184,36 @@ export function Footer({
         </div>
 
         <nav aria-label="Footer navigation" className="flex flex-wrap items-center justify-center gap-5">
-          <button
-            type="button"
-            onClick={() => onNavigateGuide('article')}
+          <a
+            href="./guides/"
             className="hover:text-foreground transition-colors whitespace-nowrap"
           >
-            Dictation Guide
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateGuide('about')}
+            Knowledge Hub & Guides
+          </a>
+          <a
+            href="./about.html"
             className="hover:text-foreground transition-colors whitespace-nowrap"
           >
-            About & Contact
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateGuide('privacy')}
+            About & E-E-A-T
+          </a>
+          <a
+            href="./privacy-policy.html"
             className="hover:text-foreground transition-colors whitespace-nowrap"
           >
             Privacy Policy
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateGuide('terms')}
+          </a>
+          <a
+            href="./terms.html"
             className="hover:text-foreground transition-colors whitespace-nowrap"
           >
             Terms of Use
-          </button>
+          </a>
+          <a
+            href="./contact.html"
+            className="hover:text-foreground transition-colors whitespace-nowrap"
+          >
+            Contact Reachability
+          </a>
         </nav>
       </div>
     </footer>

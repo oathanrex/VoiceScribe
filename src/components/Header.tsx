@@ -164,6 +164,13 @@ export function Header({
                 </button>
               );
             })}
+
+            <a
+              href="./guides/"
+              className="relative h-full inline-flex items-center gap-1 text-[13px] xl:text-sm font-medium text-muted hover:text-foreground transition-colors whitespace-nowrap shrink-0"
+            >
+              <span>Guides Hub</span>
+            </a>
           </nav>
 
           {/* Zone 3: Save Status + Punctuation Indicator + Focus Timer + Export + New Note */}
