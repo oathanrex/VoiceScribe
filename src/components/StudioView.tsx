@@ -67,6 +67,7 @@ import { FocusTimerMenu } from './FocusTimerMenu';
 import { LanguageSelector } from './LanguageSelector';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { TabAudioModal } from './TabAudioModal';
+import { LiveSubtitlesModal } from './LiveSubtitlesModal';
 import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
 interface StudioViewProps {
@@ -120,6 +121,7 @@ interface StudioViewProps {
   onClearNote: () => void;
   onSaveNote: () => void;
   onToggleTheme: () => void;
+  onSpeakText?: (text: string, langCode: string) => void;
 }
 
 const TYPOGRAPHY_OPTIONS: { id: TypographySize; label: string; sizeHint: string; textClass: string }[] = [
@@ -188,6 +190,7 @@ export function StudioView({
   onClearNote,
   onSaveNote,
   onToggleTheme,
+  onSpeakText,
 }: StudioViewProps) {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -208,6 +211,7 @@ export function StudioView({
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [typographyOpen, setTypographyOpen] = useState(false);
   const [tabAudioModalOpen, setTabAudioModalOpen] = useState(false);
+  const [liveSubtitlesOpen, setLiveSubtitlesOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
@@ -1459,7 +1463,17 @@ export function StudioView({
                   className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
                 >
                   <Monitor className="w-4 h-4 text-primary shrink-0" />
-                  <span className="hidden sm:inline">Tab / YouTube Audio</span>
+                  <span className="hidden sm:inline">Tab Audio</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLiveSubtitlesOpen(true)}
+                  title="DeepL Voice: Live Bilingual Subtitles & Face-to-Face Translation"
+                  className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl text-xs font-medium border border-border bg-surface hover:bg-surface-hover text-foreground transition-all shrink-0"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="hidden sm:inline">DeepL Voice</span>
                 </button>
               </div>
             )}
@@ -1567,6 +1581,21 @@ export function StudioView({
           theme={theme}
         />
       )}
+
+      {/* DeepL Voice Live Bilingual Subtitles & Conversation Modal */}
+      <LiveSubtitlesModal
+        open={liveSubtitlesOpen}
+        onClose={() => setLiveSubtitlesOpen(false)}
+        selectedLanguage={selectedLanguage}
+        interimText={interimText}
+        isListening={isListening}
+        onToggleListening={onToggleListening}
+        onAppendToDraft={(txt) => {
+          onContentChange(content + txt, htmlContent + txt);
+        }}
+        onSpeakText={onSpeakText}
+        theme={theme}
+      />
     </div>
   );
 }

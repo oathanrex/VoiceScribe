@@ -6,155 +6,170 @@
   <title>Hindi & Indic Voice Typing Guide: Mastering Speech-to-Text Accuracy - VoiceScribe</title>
   <meta name="description" content="Complete tutorial on Hindi (हिन्दी) and Indic language voice typing with VoiceScribe. Learn Purn Viram (।), punctuation commands, and phonetic enunciation.">
   <link rel="canonical" href="https://oathanrex.github.io/VoiceScribe/guides/hindi-indic-voice-typing.html">
-  <style>
-    :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --border: #334155;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --primary: #38bdf8;
-      --primary-hover: #0ea5e9;
-      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--text); font-family: var(--font-family); line-height: 1.8; padding: 0 1rem; }
-    header, footer { max-width: 860px; margin: 0 auto; padding: 1.5rem 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-    footer { border-top: 1px solid var(--border); border-bottom: none; margin-top: 3rem; flex-direction: column; gap: 1rem; text-align: center; color: var(--muted); font-size: 0.875rem; }
-    .nav-links { display: flex; flex-wrap: wrap; gap: 1.25rem; list-style: none; }
-    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
-    a:hover { color: var(--primary-hover); text-decoration: underline; }
-    .logo { font-weight: 700; font-size: 1.25rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
-    main { max-width: 860px; margin: 2.5rem auto; background: var(--surface); padding: 2.5rem; border-radius: 1rem; border: 1px solid var(--border); }
-    h1 { font-size: 2.25rem; line-height: 1.3; margin-bottom: 0.75rem; color: #fff; }
-    .meta { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
-    h2 { font-size: 1.5rem; margin: 2rem 0 0.85rem; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-    h3 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; color: #e2e8f0; }
-    p, ul, ol { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1rem; }
-    ul, ol { padding-left: 1.75rem; }
-    li { margin-bottom: 0.5rem; }
-    code { background: #0f172a; padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-size: 0.9em; color: var(--primary); }
-    .callout { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.75rem; padding: 1.25rem; margin: 1.5rem 0; }
-    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-    th, td { border: 1px solid var(--border); padding: 0.75rem 1rem; text-align: left; }
-    th { background: #0f172a; color: #fff; font-weight: 600; }
-  </style>
+  <link rel="stylesheet" href="./guides-theme.css">
+  <script>
+    (function() {
+      var saved = localStorage.getItem('voicescribe_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body>
 
-  <header>
-    <a href="../" class="logo">🎙️ VoiceScribe</a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="../">Studio</a></li>
-        <li><a href="./">Guides</a></li>
+  <header class="hub-header">
+    <div class="brand-group">
+      <a href="../" class="logo-link">🎙️ VoiceScribe</a>
+      <span class="hub-badge">Indic Guide</span>
+    </div>
+
+    <nav class="hub-nav">
+      <ul class="hub-nav-links">
+        <li><a href="../">Dictation Studio</a></li>
+        <li><a href="./" class="active">Guides Hub</a></li>
         <li><a href="../about.html">About</a></li>
-        <li><a href="../contact.html">Contact</a></li>
+        <li><a href="../contact.html">Contact Us</a></li>
       </ul>
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="theme-toggle-btn"
+        aria-label="Toggle Dark Mode"
+        onclick="toggleHubTheme()"
+      >
+        <span id="theme-icon">🌙</span>
+      </button>
     </nav>
   </header>
 
-  <main>
-    <h1>Hindi & Indic Voice Typing: Punctuation, Danda (।) & Flow State</h1>
-    <div class="meta">
-      <span>By <strong>Oathan Rex</strong></span>
-      <span>•</span>
-      <span>Published: November 2026</span>
-      <span>•</span>
-      <span>Reading Time: 5 min</span>
-      <span>•</span>
-      <span>Category: Indic Languages & Localization</span>
+  <main class="hub-container">
+    <div class="breadcrumb">
+      <a href="../">VoiceScribe</a> &rsaquo; <a href="./">Guides</a> &rsaquo; <span>Hindi &amp; Indic Voice Typing</span>
     </div>
 
-    <p>पारंपरिक कीबोर्ड पर देवनागरी हिन्दी या अन्य भारतीय भाषाओं (बंगाली, तमिल, तेलुगु, मराठी, पंजाबी) में टाइप करना अक्सर धीमा और कठिन होता है। इनस्क्रिप्ट (InScript) या रेमिंगटन (Remington) कीबोर्ड लेआउट को सीखने में हफ्तों का अभ्यास लगता है।</p>
+    <article class="article-wrapper">
+      <header class="article-header">
+        <h1>Hindi &amp; Indic Voice Typing: Punctuation, Danda (।) &amp; Flow State</h1>
+        <div class="article-byline">
+          <span>By <span class="byline-author">Oathan Rex</span></span>
+          <span>•</span>
+          <span>Published: November 2026</span>
+          <span>•</span>
+          <span>Reading Time: 5 min</span>
+          <span>•</span>
+          <span>Languages: Hindi, Marathi, Bengali, Tamil, Telugu, Gujarati</span>
+        </div>
+      </header>
 
-    <p>VoiceScribe के <strong>मल्टीलिंगुअल स्पीच रिकग्निशन इंजन</strong> के साथ, आप अपनी स्वाभाविक आवाज में बोलकर सीधे कंप्यूटर स्क्रीन पर उच्च गति से हिन्दी टाइप कर सकते हैं। यह गाइड आपको हिन्दी और भारतीय भाषाओं में 99% शुद्धता के साथ वॉइस टाइपिंग करने की तकनीक सिखाती है।</p>
+      <div class="article-content">
+        <p>Devanagari keyboard typing has historically presented a steep learning curve for creators, journalists, and students across India. Standard InScript layouts require memorizing complex matra combinations and conjunct consonants (संयुक्ताक्षर). As a result, millions of Hindi and Indic writers default to Latin transliteration (Hinglish), which degrades search indexability and readability.</p>
 
-    <div class="callout">
-      <strong>मुख्य सुविधा:</strong> VoiceScribe में बोलते समय जब आप <em>"पूर्ण विराम"</em> कहते हैं, तो सिस्टम स्वचालित रूप से वाक्य के अंत में पारंपरिक देवनागरी डंडा (<code>।</code>) लगा देता है, बिना किसी अतिरिक्त स्पेस के।
-    </div>
+        <p>VoiceScribe solves this problem by providing <strong>native browser speech-to-text in 15+ Indian languages and dialects</strong>, equipped with complete Unicode-aware hands-free punctuation cues.</p>
 
-    <h2>1. हिन्दी वॉइस कमांड्स और विराम चिन्ह (Voice Commands Matrix)</h2>
-    <p>बोलते समय निम्नलिखित शब्दों का उच्चारण करके आप विराम चिन्ह और पैराग्राफ को पूरी तरह हैंड्स-फ्री नियंत्रित कर सकते हैं:</p>
+        <div class="callout-box">
+          <strong>Did You Know?</strong> The Web Speech API supports native recognition for <code>hi-IN</code> (Hindi), <code>bn-IN</code> (Bengali), <code>mr-IN</code> (Marathi), <code>ta-IN</code> (Tamil), <code>te-IN</code> (Telugu), <code>gu-IN</code> (Gujarati), <code>kn-IN</code> (Kannada), <code>ml-IN</code> (Malayalam), <code>pa-Guru-IN</code> (Punjabi), and <code>ur-IN</code> (Urdu).
+        </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>आप बोलें (Spoken Command)</th>
-          <th>परिणाम (Result)</th>
-          <th>उपयोग</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>पूर्ण विराम</code> या <code>पूर्णविराम</code></td>
-          <td><code>।</code></td>
-          <td>वाक्य समाप्ति पर देवनागरी पूर्ण विराम</td>
-        </tr>
-        <tr>
-          <td><code>अल्पविराम</code></td>
-          <td><code>,</code></td>
-          <td>वाक्यों के बीच ठहराव (Comma)</td>
-        </tr>
-        <tr>
-          <td><code>नई पंक्ति</code> या <code>नई लाइन</code></td>
-          <td><code>\n</code></td>
-          <td>कर्सर अगली लाइन पर जाएगा</td>
-        </tr>
-        <tr>
-          <td><code>नया अनुच्छेद</code></td>
-          <td><code>\n\n</code></td>
-          <td>नया पैराग्राफ शुरू होगा</td>
-        </tr>
-        <tr>
-          <td><code>प्रश्न चिन्ह</code></td>
-          <td><code>?</code></td>
-          <td>सवालों के अंत में प्रश्नवाचक चिन्ह</td>
-        </tr>
-        <tr>
-          <td><code>रुपया</code> या <code>रुपये</code></td>
-          <td><code>₹</code></td>
-          <td>भारतीय मुद्रा प्रतीक</td>
-        </tr>
-        <tr>
-          <td><code>डिक्टेशन रोको</code></td>
-          <td>माइक बंद</td>
-          <td>रिकॉर्डिंग रोकने के लिए</td>
-        </tr>
-      </tbody>
-    </table>
+        <h2>1. The Purn Viram (।) Challenge &amp; Solution</h2>
+        <p>In standard English speech recognition, dictating <em>"period"</em> or <em>"full stop"</em> generates a dot (<code>.</code>). However, Devanagari, Bengali, and Sanskrit syntax require the classical vertical bar known as the <strong>Danda or Purn Viram (।)</strong> (Unicode <code>U+0964</code>).</p>
 
-    <h2>2. शुद्ध उच्चारण और स्पष्ट गति के नियम</h2>
-    <ul>
-      <li><strong>समान गति से बोलें:</strong> बहुत तेजी से बोलने की जगह स्वाभाविक बातचीत की लय में बोलें।</li>
-      <li><strong>मात्राओं का स्पष्ट उच्चारण:</strong> हिन्दी में ह्रस्व (ि) और दीर्घ (ी) की मात्राओं का अंतर स्पष्ट आवाज में होना चाहिए। जैसे <em>"दिन"</em> और <em>"दीन"</em>।</li>
-      <li><strong>संयुक्त अक्षरों की स्पष्टता:</strong> संयुक्त अक्षर (जैसे <em>"प्रबंधन"</em>, <em>"आधिकारिक"</em>) बोलते समय अक्षरों को आपस में न मिलाएं।</li>
-    </ul>
+        <p>VoiceScribe is engineered with dedicated Unicode regex boundaries that recognize Hindi punctuation commands without requiring keyboard intervention:</p>
 
-    <h2>3. अन्य भारतीय भाषाओं में वॉइस टाइपिंग (Indic Languages)</h2>
-    <p>VoiceScribe में भारत की 10 से अधिक क्षेत्रीय भाषाओं के लिए पूर्ण समर्थन शामिल है:</p>
-    <ul>
-      <li><strong>বাংলা (Bengali):</strong> <em>"দাঁড়ি"</em> बोलने पर <code>।</code> और <em>"কমা"</em> बोलने पर <code>,</code> दर्ज होता है।</li>
-      <li><strong>मराठी (Marathi):</strong> <em>"पूर्णविराम"</em> और <em>"नवीन ओळ"</em> के साथ शुद्ध मराठी टाइपिंग।</li>
-      <li><strong>ਪੰਜਾਬੀ (Punjabi):</strong> ਗੁਰਮੁਖੀ ਲਿਪੀ ਵਿੱਚ <em>"ਡੰਡੀ"</em> (।) ਅਤੇ <em>"ਕਾਮਾ"</em>।</li>
-      <li><strong>اردو (Urdu):</strong> نستعلیق اور عربی حروف کے لیے <em>"ختمہ"</em> (۔) اور <em>"سکتہ"</em> (،) کا مکمل نظام۔</li>
-    </ul>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Spoken Hindi Command</th>
+              <th>Inserted Symbol</th>
+              <th>Example Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>पूर्ण विराम</code> (Purn Viram)</td>
+              <td><code>।</code></td>
+              <td>हम कल दिल्ली जा रहे हैं पूर्ण विराम &rarr; <em>हम कल दिल्ली जा रहे हैं।</em></td>
+            </tr>
+            <tr>
+              <td><code>अल्पविराम</code> (Alpviram)</td>
+              <td><code>,</code></td>
+              <td>नमस्ते अल्पविराम मेरा नाम राहुल है &rarr; <em>नमस्ते, मेरा नाम राहुल है</em></td>
+            </tr>
+            <tr>
+              <td><code>प्रश्नवाचक चिन्ह</code></td>
+              <td><code>?</code></td>
+              <td>आप क्या कर रहे हैं प्रश्नवाचक चिन्ह &rarr; <em>आप क्या कर रहे हैं?</em></td>
+            </tr>
+            <tr>
+              <td><code>नई लाइन</code> (Nayi Line)</td>
+              <td><code>\n</code></td>
+              <td>Moves cursor cleanly to the next line</td>
+            </tr>
+            <tr>
+              <td><code>नया पैराग्राफ</code></td>
+              <td><code>\n\n</code></td>
+              <td>Creates a new indented thought block</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <h2>निष्कर्ष</h2>
-    <p>VoiceScribe भारतीय भाषाओं के लेखकों, ब्लॉगर्स और शिक्षकों के लिए टाइपिंग की बाधा को समाप्त करता है। अपनी भाषा चुनें, माइक ऑन करें और अपने विचारों को बिना किसी रुकावट के शब्द दें।</p>
+        <h2>2. Handling Hinglish &amp; Loan Words</h2>
+        <p>Modern spoken Hindi frequently incorporates English terminology (e.g., <em>"computer"</em>, <em>"meeting"</em>, <em>"software"</em>, <em>"deadline"</em>). When dictating in VoiceScribe:</p>
+        <ul>
+          <li><strong>Select <code>hi-IN</code>:</strong> The engine automatically transcribes English technical terms into clean Devanagari phonetic script (e.g., <em>कंप्यूटर</em>, <em>सॉफ्टवेयर</em>).</li>
+          <li><strong>Articulate Loan Words Cleanly:</strong> Pronounce English technical terms with natural rhythm so the acoustic classifier correctly identifies the syllable pattern.</li>
+        </ul>
+
+        <h2>3. Regional Indic Language Coverage</h2>
+        <p>VoiceScribe includes comprehensive voice command sets for regional Indic languages:</p>
+        <ul>
+          <li><strong>Bengali (বাংলা):</strong> Use <code>দাঁড়ি</code> for Danda (<code>।</code>) and <code>কমা</code> for comma.</li>
+          <li><strong>Marathi (मराठी):</strong> Supports <code>पूर्ण विराम</code>, <code>अल्पविराम</code>, and <code>नवीन ओळ</code>.</li>
+          <li><strong>Tamil (தமிழ்):</strong> Supports <code>முற்றுப்புள்ளி</code> (Full Stop) and <code>காற்புள்ளி</code> (Comma).</li>
+          <li><strong>Telugu (తెలుగు):</strong> Supports <code>ఫుల్ స్టాప్</code> and <code>కామా</code>.</li>
+          <li><strong>Urdu (اردو):</strong> Full Right-to-Left (RTL) canvas rendering with <code>ختمہ</code> (Urdu Full Stop <code>۔</code>).</li>
+        </ul>
+
+        <h2>Conclusion</h2>
+        <p>Speaking in your mother tongue is the fastest, most authentic path to producing original digital literature. With VoiceScribe's browser-local Indic engine, your voice typing remains 100% private, highly accurate, and completely free of subscription barriers.</p>
+      </div>
+    </article>
   </main>
 
-  <footer>
-    <ul class="nav-links">
-      <li><a href="../">Voice Typing Studio</a></li>
-      <li><a href="./">Knowledge Hub</a></li>
+  <footer class="hub-footer">
+    <div>
+      <p><strong>VoiceScribe Knowledge Hub</strong> by Oathan Rex</p>
+      <p style="margin-top: 0.25rem; font-size: 0.775rem;">Client-side speech processing: No audio recordings or voice transcripts are ever sent to external servers.</p>
+    </div>
+
+    <ul class="hub-footer-links">
       <li><a href="../privacy-policy.html">Privacy Policy</a></li>
       <li><a href="../terms.html">Terms of Service</a></li>
-      <li><a href="../about.html">About & E-E-A-T</a></li>
+      <li><a href="../about.html">About Us</a></li>
       <li><a href="../contact.html">Contact Us</a></li>
+      <li><a href="./">Guides Hub</a></li>
     </ul>
-    <p>&copy; 2026 VoiceScribe by Oathan Rex. All rights reserved.</p>
   </footer>
 
+  <script>
+    function updateThemeIcon() {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function toggleHubTheme() {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('voicescribe_theme', next);
+      updateThemeIcon();
+    }
+
+    updateThemeIcon();
+  </script>
 </body>
 </html>

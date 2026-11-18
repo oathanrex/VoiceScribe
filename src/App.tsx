@@ -977,6 +977,7 @@ export default function App() {
             onClearNote={handleClearNote}
             onSaveNote={handleSaveNote}
             onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            onSpeakText={(text, lang) => tts.speak(text, lang)}
           />
         )}
 
