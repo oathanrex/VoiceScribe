@@ -87,7 +87,7 @@ export const GboardSuggestionBar: React.FC<GboardSuggestionBarProps> = ({
       {/* Quick Punctuation & Transliterate Toggle (Right) */}
       <div className="flex items-center gap-1.5 shrink-0">
         {/* 1-tap punctuation buttons */}
-        <div className="flex items-center gap-0.5 border-r border-border/60 pr-1.5">
+        <div data-testid="gboard-punctuation-pills" className="flex items-center gap-0.5 border-r border-border/60 pr-1.5">
           {punctuationMarks.map((p) => (
             <button
               key={p}

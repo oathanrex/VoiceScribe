@@ -71,8 +71,10 @@ import { TabAudioModal } from './TabAudioModal';
 import { LiveSubtitlesModal } from './LiveSubtitlesModal';
 import { WritingAssistantModal } from './WritingAssistantModal';
 import { GboardSuggestionBar } from './GboardSuggestionBar';
+import { WritingOverlay } from './WritingOverlay';
+import { WritingScoreWidget } from './WritingScoreWidget';
 import { isTransliterationSupported } from '../utils/transliterate';
-import { analyzeWriting } from '../utils/writingIntelligence';
+import { analyzeWriting, applySingleFix, WritingIssue } from '../utils/writingIntelligence';
 import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
 interface StudioViewProps {
@@ -235,6 +237,23 @@ export function StudioView({
     () => analyzeWriting(content, selectedLanguage.code),
     [content, selectedLanguage.code]
   );
+  const [ignoredIssueIds, setIgnoredIssueIds] = useState<Set<string>>(new Set());
+
+  const handleAcceptWritingIssue = (issue: WritingIssue) => {
+    const updated = applySingleFix(content, issue);
+    const newHtml = plainTextToHtml(updated);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = newHtml;
+      lastSyncedRef.current = { noteId, html: newHtml };
+    }
+    onContentChange(updated, newHtml);
+    flashNotice(`Fixed: "${issue.original}" → "${issue.replacement}"`);
+  };
+
+  const handleIgnoreWritingIssue = (issue: WritingIssue) => {
+    setIgnoredIssueIds((prev) => new Set([...prev, issue.id]));
+  };
+
   const [transliterateEnabled, setTransliterateEnabled] = useState(
     () => isTransliterationSupported(selectedLanguage.code)
   );
@@ -1409,6 +1428,17 @@ export function StudioView({
             </div>
 
             <div ref={editorContainerRef} className="relative">
+              {/* Real-time inline wavy squiggles & floating 1-click action popover */}
+              <WritingOverlay
+                issues={writingScore.issues}
+                editorEl={editorRef.current}
+                containerEl={editorContainerRef.current}
+                fullText={content}
+                onAcceptIssue={handleAcceptWritingIssue}
+                ignoredIssueIds={ignoredIssueIds}
+                onIgnoreIssue={handleIgnoreWritingIssue}
+              />
+
               {activeFocusEnabled && isSpeaking && activeLineRects.length > 0 && (
                 <div
                   aria-hidden="true"
@@ -1488,30 +1518,11 @@ export function StudioView({
 
           {/* Non-intrusive real-time Editorial Quality score & word counter */}
           <div data-print-hide="true" className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
-            <button
-              type="button"
-              onClick={() => setWritingModalOpen(true)}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                writingScore.overall >= 85
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                  : writingScore.overall >= 65
-                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
-                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
-              }`}
-              title="Editorial Writing Intelligence & Anti-AI Guardian"
-            >
-              <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center font-bold text-[10px] font-mono">
-                {hasContent ? writingScore.overall : '100'}
-              </span>
-              <span>
-                {hasContent
-                  ? writingScore.issues.length === 0
-                    ? 'All clear'
-                    : `${writingScore.issues.length} ${writingScore.issues.length === 1 ? 'suggestion' : 'suggestions'}`
-                  : 'Editorial Ready'}
-              </span>
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            </button>
+            <WritingScoreWidget
+              score={writingScore}
+              onOpenModal={() => setWritingModalOpen(true)}
+              hasContent={hasContent}
+            />
 
             <span
               data-testid="realtime-word-counter"
