@@ -1729,6 +1729,7 @@ export function StudioView({
         open={liveSubtitlesOpen}
         onClose={() => setLiveSubtitlesOpen(false)}
         selectedLanguage={selectedLanguage}
+        onSelectLanguage={onSelectLanguage}
         interimText={interimText}
         isListening={isListening}
         onToggleListening={onToggleListening}
