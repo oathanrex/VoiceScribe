@@ -61,12 +61,35 @@ test('adjustTone applies tone transformation correctly', () => {
 });
 
 test('analyzeWriting detects spelling slips from phonetic dictionary and grammar idioms', () => {
-  const raw = 'Teh team did not went there because i am agree with them.';
-  const report = analyzeWriting(raw);
+  const text = 'We was very good at teh office.';
+  const report = analyzeWriting(text);
+  assert.ok(report.issues.length >= 3);
+});
+
+test('analyzeWriting analyzes Hindi Devanagari grammar, clarity, and Anti-AI clichés', () => {
+  const hindiText = 'हम वहाँ जा रहे थे क्युकि समय कम था । यह बहुत अच्छा प्रयास है और हमे समृद्ध ताने-बाने को बिना किसी देरी के समझना चाहिए।';
+  const report = analyzeWriting(hindiText, 'hi-IN');
+  assert.ok(report.issues.length >= 4);
+
+  const categories = report.issues.map((i) => i.category);
+  assert.ok(categories.includes('correctness'));
+  assert.ok(categories.includes('anti-ai'));
+  assert.ok(categories.includes('engagement'));
+
+  const fixed = applyAllImprovements(hindiText, report.issues);
+  assert.ok(fixed.includes('क्योंकि'));
+  assert.ok(fixed.includes('उत्कृष्ट'));
+  assert.ok(fixed.includes('विविधता'));
+  assert.ok(fixed.includes('अब'));
+});
+
+test('analyzeWriting analyzes Spanish clarity and Anti-AI clichés', () => {
+  const spanishText = 'Nosotros trabajamos con el fin de avanzar en el rico tapiz sin más preámbulos.';
+  const report = analyzeWriting(spanishText, 'es-ES');
   assert.ok(report.issues.length >= 3);
 
-  const fixed = applyAllImprovements(raw, report.issues);
-  assert.ok(fixed.includes('The'));
-  assert.ok(fixed.includes('did not go'));
-  assert.ok(fixed.includes('I agree'));
+  const fixed = applyAllImprovements(spanishText, report.issues);
+  assert.ok(fixed.includes('para'));
+  assert.ok(fixed.includes('gran diversidad'));
+  assert.ok(fixed.includes('ahora'));
 });

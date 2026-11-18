@@ -299,7 +299,7 @@ export function processDictationSegment(
 
   let autoCorrections: AutoCorrectChange[] | undefined;
   if (enableAutoCorrect) {
-    const corrected = autoCorrectText(processed);
+    const corrected = autoCorrectText(processed, langCode);
     processed = corrected.text;
     if (corrected.changes.length > 0) {
       autoCorrections = corrected.changes;

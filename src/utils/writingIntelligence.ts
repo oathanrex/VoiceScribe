@@ -533,12 +533,244 @@ const ANTI_AI_RULES: RulePattern[] = [
   },
 ];
 
+// 5. Hindi / Devanagari Editorial & Anti-AI Rules (Gboard Intelligence)
+export const HINDI_RULES: RulePattern[] = [
+  {
+    regex: /(\S)\s+([।])/g,
+    replacement: (_m: string, char: string, purn: string) => `${char}${purn}`,
+    title: 'पूर्ण विराम स्पेसिंग',
+    description: 'पूर्ण विराम (।) से पहले स्पेस नहीं होना चाहिए।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)क्योकि(?=$|\s|[।!?,])|(?<=^|\s)क्युकि(?=$|\s|[।!?,])/g,
+    replacement: 'क्योंकि',
+    title: 'वर्तनी शुद्धि (अनुस्वार)',
+    description: 'सही वर्तनी "क्योंकि" है।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)नही(?=$|\s|[।!?,])/g,
+    replacement: 'नहीं',
+    title: 'वर्तनी शुद्धि (बिंदी)',
+    description: 'नकारार्थी शब्द "नहीं" में बिंदी आवश्यक है।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)हमे(?=$|\s|[।!?,])/g,
+    replacement: 'हमें',
+    title: 'सर्वनाम वर्तनी',
+    description: 'सही रूप "हमें" (अनुस्वार सहित) है।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)कृप्या(?=$|\s|[।!?,])/g,
+    replacement: 'कृपया',
+    title: 'मानक वर्तनी',
+    description: 'शुद्ध मानक रूप "कृपया" है।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)बहोत(?=$|\s|[।!?,])/g,
+    replacement: 'बहुत',
+    title: 'वर्तनी शुद्धि',
+    description: 'मानक हिंदी में "बहुत" का प्रयोग करें।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|\s)श्रीमति(?=$|\s|[।!?,])/g,
+    replacement: 'श्रीमती',
+    title: 'दीर्घ ई-कार शुद्धि',
+    description: 'आदरसूचक शब्द में दीर्घ ई-कार "श्रीमती" का प्रयोग होता है।',
+    category: 'correctness',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])इस\s+तथ्य\s+के\s+कारण\s+कि(?=[\s,।!?]|$)/gu,
+    replacement: 'क्योंकि',
+    title: 'संक्षिप्तता (Conciseness)',
+    description: 'लंबे वाक्यांश के स्थान पर सीधा शब्द "क्योंकि" प्रयोग करें।',
+    category: 'clarity',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])(?:के\s+क्रम\s+में|के\s+उद्देश्य\s+से)(?=[\s,।!?]|$)/gu,
+    replacement: 'के लिए',
+    title: 'सरल एवं स्पष्ट भाषा',
+    description: 'भारी मुहावरे के स्थान पर सरल "के लिए" का प्रयोग करें।',
+    category: 'clarity',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])के\s+संदर्भ\s+में(?=[\s,।!?]|$)/gu,
+    replacement: 'के बारे में',
+    title: 'स्पष्टता',
+    description: '"के संदर्भ में" को सरल बनाकर "के बारे में" लिखें।',
+    category: 'clarity',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])बहुत\s+अच्छा(?=[\s,।!?]|$)/gu,
+    replacement: 'उत्कृष्ट',
+    title: 'समृद्ध शब्दावली',
+    description: '"बहुत अच्छा" की जगह प्रभावशाली शब्द "उत्कृष्ट" का प्रयोग करें।',
+    category: 'engagement',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])बहुत\s+बड़ा(?=[\s,।!?]|$)/gu,
+    replacement: 'विशाल',
+    title: 'सटीक शब्द चयन',
+    description: '"बहुत बड़ा" के स्थान पर "विशाल" या "भव्य" का प्रयोग करें।',
+    category: 'engagement',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])समृद्ध\s+ताने-?बाने(?=[\s,।!?]|$)/gu,
+    replacement: 'विविधता',
+    title: 'एआई अनुवाद क्लीशे',
+    description: 'रोबोटिक एआई अनुवाद "समृद्ध ताने-बाने" (rich tapestry) की जगह स्वाभाविक शब्द "विविधता" प्रयोग करें।',
+    category: 'anti-ai',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])बिना\s+किसी\s+देरी\s+के(?=[\s,।!?]|$)/gu,
+    replacement: 'अब',
+    title: 'एआई फिलर निवारक',
+    description: 'एआई मुहावरे "बिना किसी देरी के" (without further ado) के स्थान पर सीधे बात शुरू करें।',
+    category: 'anti-ai',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])आइए\s+गहराई\s+से\s+(?:समझें|विचार\s+करें|जानें)(?=[\s,।!?]|$)/gu,
+    replacement: 'आइए देखें',
+    title: 'मानवीय संवाद',
+    description: 'रोबोटिक एआई जुमले "आइए गहराई से समझें" के स्थान पर स्वाभाविक "आइए देखें" प्रयोग करें।',
+    category: 'anti-ai',
+  },
+  {
+    regex: /(?<=^|[\s,।!?])महत्वपूर्ण\s+भूमिका\s+निभाता\s+है(?=[\s,।!?]|$)/gu,
+    replacement: 'मददगार है',
+    title: 'स्वाभाविक वाक्य रचना',
+    description: 'बार-बार दोहराए जाने वाले एआई जुमले "महत्वपूर्ण भूमिका निभाता है" से बचें।',
+    category: 'anti-ai',
+  },
+];
+
+// 6. Spanish Editorial & Anti-AI Rules
+export const SPANISH_RULES: RulePattern[] = [
+  {
+    regex: /\bcon\s+el\s+fin\s+de\b/gi,
+    replacement: 'para',
+    title: 'Concisión',
+    description: 'Simplifique "con el fin de" por la palabra directa "para".',
+    category: 'clarity',
+  },
+  {
+    regex: /\ba\s+pesar\s+del\s+hecho\s+de\s+que\b/gi,
+    replacement: 'aunque',
+    title: 'Claridad',
+    description: 'Utilice "aunque" en lugar de frases sobrecargadas.',
+    category: 'clarity',
+  },
+  {
+    regex: /\ben\s+la\s+actualidad\b/gi,
+    replacement: 'actualmente',
+    title: 'Palabra Directa',
+    description: 'Use "actualmente" o "hoy en día".',
+    category: 'clarity',
+  },
+  {
+    regex: /\bmuy\s+bueno\b/gi,
+    replacement: 'excepcional',
+    title: 'Vocabulario Enriquecido',
+    description: 'Mejore "muy bueno" con un adjetivo más vibrante como "excepcional".',
+    category: 'engagement',
+  },
+  {
+    regex: /\b(?:un\s+)?rico\s+tapiz\b/gi,
+    replacement: 'una gran diversidad',
+    title: 'Guardián Anti-IA',
+    description: 'Evite el cliché robótico de IA "rico tapiz" (rich tapestry).',
+    category: 'anti-ai',
+  },
+  {
+    regex: /\bsin\s+más\s+preámbulos\b/gi,
+    replacement: 'ahora',
+    title: 'Guardián Anti-IA',
+    description: 'Elimine la frase de relleno típica de IA "sin más preámbulos".',
+    category: 'anti-ai',
+  },
+  {
+    regex: /\bprofundizar\s+en\b/gi,
+    replacement: 'examinar',
+    title: 'Voz Humana',
+    description: 'Sustituya "profundizar en" (delve into) por verbos directos.',
+    category: 'anti-ai',
+  },
+];
+
+// 7. French Editorial & Anti-AI Rules
+export const FRENCH_RULES: RulePattern[] = [
+  {
+    regex: /\bafin\s+de\b/gi,
+    replacement: 'pour',
+    title: 'Concision',
+    description: 'Préférez le mot direct "pour" à la tournure "afin de".',
+    category: 'clarity',
+  },
+  {
+    regex: /\bdans\s+le\s+but\s+de\b/gi,
+    replacement: 'pour',
+    title: 'Clarté',
+    description: 'Utilisez "pour" pour alléger votre phrase.',
+    category: 'clarity',
+  },
+  {
+    regex: /\btrès\s+bon\b/gi,
+    replacement: 'remarquable',
+    title: 'Vocabulaire Évolué',
+    description: 'Remplacez "très bon" par "remarquable".',
+    category: 'engagement',
+  },
+  {
+    regex: /\b(?:une\s+)?riche\s+tapisserie\b/gi,
+    replacement: 'une diversité',
+    title: 'Gardien Anti-IA',
+    description: 'Évitez le cliché robotique d\'IA "riche tapisserie".',
+    category: 'anti-ai',
+  },
+  {
+    regex: /\bsans\s+plus\s+attendre\b/gi,
+    replacement: 'maintenant',
+    title: 'Gardien Anti-IA',
+    description: 'Supprimez le tic de langage IA "sans plus attendre".',
+    category: 'anti-ai',
+  },
+  {
+    regex: /\bplonger\s+dans\b/gi,
+    replacement: 'examiner',
+    title: 'Voix Humaine',
+    description: 'Remplacez le cliché "plonger dans" (delve into) par un verbe précis.',
+    category: 'anti-ai',
+  },
+];
+
+export function getActiveRules(text: string, langCode?: string): RulePattern[] {
+  const lang = (langCode || '').toLowerCase().split(/[-_]/)[0];
+  const hasDevanagari = /[\u0900-\u097F]/.test(text);
+  const emDashRule = ANTI_AI_RULES.filter((r) => r.regex.source.includes('—'));
+
+  if (lang === 'hi' || lang === 'mr' || hasDevanagari) {
+    return [...HINDI_RULES, ...emDashRule];
+  }
+  if (lang === 'es') {
+    return [...SPANISH_RULES, ...emDashRule];
+  }
+  if (lang === 'fr') {
+    return [...FRENCH_RULES, ...emDashRule];
+  }
+  return [...CORRECTNESS_RULES, ...CLARITY_RULES, ...ENGAGEMENT_RULES, ...ANTI_AI_RULES];
+}
+
 const ALL_RULES = [...CORRECTNESS_RULES, ...CLARITY_RULES, ...ENGAGEMENT_RULES, ...ANTI_AI_RULES];
 
 /**
  * Scans text and generates full editorial issue reports and score.
  */
-export function analyzeWriting(text: string): WritingScore {
+export function analyzeWriting(text: string, langCode?: string): WritingScore {
   const trimmed = text.trim();
   if (!trimmed) {
     return {
@@ -558,7 +790,9 @@ export function analyzeWriting(text: string): WritingScore {
 
   let issueCounter = 0;
 
-  for (const rule of ALL_RULES) {
+  const rules = getActiveRules(trimmed, langCode);
+
+  for (const rule of rules) {
     const flags = rule.regex.flags.includes('g') ? rule.regex.flags : rule.regex.flags + 'g';
     const safeRegex = new RegExp(rule.regex.source, flags);
     const matches = Array.from(trimmed.matchAll(safeRegex));

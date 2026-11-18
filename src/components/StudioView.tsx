@@ -9,6 +9,7 @@ import {
   Clock,
   Copy,
   FileUp,
+  Globe,
   Highlighter,
   Italic,
   Keyboard,
@@ -69,6 +70,8 @@ import { WaveformVisualizer } from './WaveformVisualizer';
 import { TabAudioModal } from './TabAudioModal';
 import { LiveSubtitlesModal } from './LiveSubtitlesModal';
 import { WritingAssistantModal } from './WritingAssistantModal';
+import { GboardSuggestionBar } from './GboardSuggestionBar';
+import { isTransliterationSupported } from '../utils/transliterate';
 import { analyzeWriting } from '../utils/writingIntelligence';
 import type { UseTabAudioCaptureReturn } from '../hooks/useTabAudioCapture';
 
@@ -228,7 +231,53 @@ export function StudioView({
   const metrics = useMemo(() => computeTextMetrics(content), [content]);
   const liveText = interimText ? `${content} ${interimText}` : content;
   const liveMetrics = useMemo(() => computeTextMetrics(liveText), [liveText]);
-  const writingScore = useMemo(() => analyzeWriting(content), [content]);
+  const writingScore = useMemo(
+    () => analyzeWriting(content, selectedLanguage.code),
+    [content, selectedLanguage.code]
+  );
+  const [transliterateEnabled, setTransliterateEnabled] = useState(
+    () => isTransliterationSupported(selectedLanguage.code)
+  );
+
+  useEffect(() => {
+    if (isTransliterationSupported(selectedLanguage.code)) {
+      setTransliterateEnabled(true);
+    }
+  }, [selectedLanguage.code]);
+
+  const lastWord = useMemo(() => {
+    const src = (interimText ? `${content} ${interimText}` : content).trimEnd();
+    const match = src.match(/[\p{L}\p{N}]+$/u);
+    return match ? match[0] : '';
+  }, [content, interimText]);
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    const el = editorRef.current;
+    if (!el) return;
+    let newContent = content;
+    if (lastWord && content.trimEnd().endsWith(lastWord)) {
+      const idx = content.lastIndexOf(lastWord);
+      newContent = content.slice(0, idx) + suggestion + ' ';
+    } else {
+      const needsSpace = content.length > 0 && !content.endsWith(' ') && !content.endsWith('\n');
+      newContent = content + (needsSpace ? ' ' : '') + suggestion + ' ';
+    }
+    const newHtml = plainTextToHtml(newContent);
+    el.innerHTML = newHtml;
+    lastSyncedRef.current = { noteId, html: newHtml };
+    onContentChange(newContent, newHtml);
+  };
+
+  const handleInsertPunctuation = (punc: string) => {
+    const el = editorRef.current;
+    if (!el) return;
+    const cleanContent = content.trimEnd();
+    const newContent = cleanContent + punc + ' ';
+    const newHtml = plainTextToHtml(newContent);
+    el.innerHTML = newHtml;
+    lastSyncedRef.current = { noteId, html: newHtml };
+    onContentChange(newContent, newHtml);
+  };
   const hasContent = content.trim().length > 0;
   const findMatchCount = useMemo(
     () => (findOpen ? countQueryMatches(content, findQuery, caseSensitive) : 0),
@@ -642,6 +691,24 @@ export function StudioView({
               <SpellCheck2 className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               <span>Auto-correct</span>
             </button>
+
+            {isTransliterationSupported(selectedLanguage.code) && (
+              <button
+                type="button"
+                onClick={() => setTransliterateEnabled((p) => !p)}
+                aria-pressed={transliterateEnabled}
+                data-testid="transliterate-toggle"
+                title="Google Keyboard style phonetic transliteration (ABC → हिन्दी)"
+                className={`inline-flex items-center gap-1.5 min-h-[38px] px-2.5 py-1.5 text-xs sm:text-[13px] font-medium rounded-control border transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  transliterateEnabled
+                    ? 'bg-accent-soft border-primary/30 text-primary font-semibold'
+                    : 'bg-surface border-border text-muted hover:text-foreground'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden="true" />
+                <span>A → अ Transliterate</span>
+              </button>
+            )}
           </div>
 
           {/* Typography, Tools & Workspace Actions */}
@@ -1329,6 +1396,18 @@ export function StudioView({
           className={`${focusMode ? 'min-h-[60vh]' : 'mt-5 min-h-[300px] sm:min-h-[370px]'} flex flex-col justify-between`}
         >
           <div className={readabilityMode ? 'w-full' : undefined}>
+            {/* Gboard-Style Smart Suggestion & Quick Punctuation Bar */}
+            <div data-print-hide="true" className="mb-3 rounded-xl overflow-hidden border border-border/70">
+              <GboardSuggestionBar
+                selectedLanguage={selectedLanguage}
+                lastWord={lastWord}
+                transliterateEnabled={transliterateEnabled}
+                onToggleTransliterate={() => setTransliterateEnabled((p) => !p)}
+                onSelectSuggestion={handleSelectSuggestion}
+                onInsertPunctuation={handleInsertPunctuation}
+              />
+            </div>
+
             <div ref={editorContainerRef} className="relative">
               {activeFocusEnabled && isSpeaking && activeLineRects.length > 0 && (
                 <div
@@ -1654,6 +1733,7 @@ export function StudioView({
         <WritingAssistantModal
           open={writingModalOpen}
           content={content}
+          languageCode={selectedLanguage.code}
           onUpdateContent={(newContent) => {
             const newHtml = plainTextToHtml(newContent);
             if (editorRef.current) {

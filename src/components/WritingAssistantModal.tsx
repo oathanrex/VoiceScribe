@@ -30,6 +30,7 @@ interface WritingAssistantModalProps {
   onUpdateContent: (newContent: string) => void;
   onClose: () => void;
   theme: 'light' | 'dark';
+  languageCode?: string;
 }
 
 export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
@@ -37,11 +38,12 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
   content,
   onUpdateContent,
   onClose,
+  languageCode,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<IssueCategory | 'all'>('all');
   const [toneNotice, setToneNotice] = useState<string | null>(null);
 
-  const scoreData = useMemo(() => analyzeWriting(content), [content]);
+  const scoreData = useMemo(() => analyzeWriting(content, languageCode), [content, languageCode]);
   const { overall, correctness, clarity, engagement, delivery, detectedTone, issues } = scoreData;
 
   const filteredIssues = useMemo(() => {
@@ -263,7 +265,14 @@ export const WritingAssistantModal: React.FC<WritingAssistantModalProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const sample = "We was going to the office in order to complete teh project. It was a very good meeting, and i am agree that we must delve into the rich tapestry of ideas — without further ado.";
+                    let sample = "We was going to the office in order to complete teh project. It was a very good meeting, and i am agree that we must delve into the rich tapestry of ideas — without further ado.";
+                    if (languageCode?.startsWith('hi')) {
+                      sample = "हम वहाँ जा रहे थे क्युकि समय कम था । यह बहुत अच्छा प्रयास है और हमे समृद्ध ताने-बाने को बिना किसी देरी के समझना चाहिए।";
+                    } else if (languageCode?.startsWith('es')) {
+                      sample = "Nosotros trabajamos con el fin de avanzar en el rico tapiz sin más preámbulos. Fue una reunion muy buena y habia mucho entusiasmo.";
+                    } else if (languageCode?.startsWith('fr')) {
+                      sample = "Nous travaillons afin de progresser dans une riche tapisserie sans plus attendre. C'est très bon et nous allons plonger dans les détails.";
+                    }
                     onUpdateContent(sample);
                     setToneNotice("Sample test draft loaded with grammar & clarity issues!");
                     setTimeout(() => setToneNotice(null), 2500);

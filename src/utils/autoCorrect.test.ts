@@ -23,3 +23,23 @@ test('autoCorrectText fixes inverted caps, weekday casing, and post-sentence cap
   const result = autoCorrectText('THis meeting moves to tuesday. please bring your notes');
   assert.equal(result.text, 'This meeting moves to Tuesday. Please bring your notes');
 });
+
+test('autoCorrectText fixes Hindi Devanagari typos and Purn Viram spacing (Gboard style)', () => {
+  const hindiInput = 'हम वहाँ जा रहे थे क्योकि समय कम था । उन्होने कहा कि नही जाना है ।';
+  const result = autoCorrectText(hindiInput, 'hi-IN');
+  assert.ok(result.text.includes('क्योंकि'));
+  assert.ok(result.text.includes('उन्होंने'));
+  assert.ok(result.text.includes('नहीं'));
+  assert.ok(result.text.includes('था।'));
+  assert.ok(!result.text.includes('था ।'));
+});
+
+test('autoCorrectText fixes Spanish and French common accent slips', () => {
+  const esResult = autoCorrectText('el habia ido tambien a la oficina', 'es-ES');
+  assert.ok(esResult.text.includes('había'));
+  assert.ok(esResult.text.includes('también'));
+
+  const frResult = autoCorrectText('c est tres bien deja', 'fr-FR');
+  assert.ok(frResult.text.includes('très'));
+  assert.ok(frResult.text.includes('déjà'));
+});
